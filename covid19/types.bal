@@ -5,227 +5,124 @@ import ballerina/constraint;
 import ballerina/data.jsondata;
 import ballerina/http;
 
-# The request counts for different statuses within the batch
-public type BatchRequestCounts record {
-    # Total number of requests in the batch
-    int total;
-    # Number of requests that have been completed successfully
-    int completed;
-    # Number of requests that have failed
-    int failed;
-};
+# The quality of the image that will be generated
+public type ImageQuality "standard"|"hd";
 
-# Represents the Queries record for the operation: list-invites
-public type ListInvitesQueries record {
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-};
-
-# The `fine_tuning.job.checkpoint` object represents a model checkpoint for a fine-tuning job that is ready to use
-public type FineTuningJobCheckpoint record {
-    # The step number that the checkpoint was created at
-    @jsondata:Name {value: "step_number"}
-    int stepNumber;
-    # The Unix timestamp (in seconds) for when the checkpoint was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The name of the fine-tuning job that this checkpoint was created from
-    @jsondata:Name {value: "fine_tuning_job_id"}
-    string fineTuningJobId;
-    # The checkpoint identifier, which can be referenced in the API endpoints
-    string id;
-    # Metrics at the step number during the fine-tuning job
-    FineTuningJobCheckpointMetrics metrics;
-    # The name of the fine-tuned checkpoint model that is created
-    @jsondata:Name {value: "fine_tuned_model_checkpoint"}
-    string fineTunedModelCheckpoint;
-    # The object type, which is always "fine_tuning.job.checkpoint"
-    "fine_tuning.job.checkpoint" 'object;
-};
-
-# The aggregated vector stores usage details of the specific time bucket
-public type UsageVectorStoresResult record {
-    # When `group_by=project_id`, this field provides the project ID of the grouped usage result
-    @jsondata:Name {value: "project_id"}
-    string? projectId?;
-    # The vector stores usage in bytes
-    @jsondata:Name {value: "usage_bytes"}
-    int usageBytes;
-    "organization.usage.vector_stores.result" 'object;
-};
-
-public type ProjectApiKeyOwner record {
-    @jsondata:Name {value: "service_account"}
-    ProjectServiceAccount serviceAccount?;
-    # `user` or `service_account`
-    "user"|"service_account" 'type?;
-    # Represents an individual user in a project
-    ProjectUser user?;
-};
-
-# Represents the Queries record for the operation: usage-vector-stores
-public type UsageVectorStoresQueries record {
-    # Start time (Unix seconds) of the query time range, inclusive
-    @http:Query {name: "start_time"}
-    int startTime;
-    # End time (Unix seconds) of the query time range, exclusive
-    @http:Query {name: "end_time"}
-    int endTime?;
-    # Specifies the number of buckets to return.
-    # - `bucket_width=1d`: default: 7, max: 31
-    # - `bucket_width=1h`: default: 24, max: 168
-    # - `bucket_width=1m`: default: 60, max: 1440
-    int 'limit?;
-    # Group the usage data by the specified fields. Support fields include `project_id`
-    @http:Query {name: "group_by"}
-    ("project_id")[] groupBy?;
-    # A cursor for use in pagination. Corresponding to the `next_page` field from the previous response
-    string page?;
-    # Width of each time bucket in response. Currently `1m`, `1h` and `1d` are supported, default to `1d`
-    @http:Query {name: "bucket_width"}
-    "1m"|"1h"|"1d" bucketWidth = "1d";
-    # Return only usage for these projects
-    @http:Query {name: "project_ids"}
-    string[] projectIds?;
-};
-
-# `none` means the model will not call any tools and instead generates a message. `auto` means the model can pick between generating a message or calling one or more tools. `required` means the model must call one or more tools before responding to the user
-public type AssistantsApiToolChoiceOptionOneOf1 "none"|"auto"|"required";
-
-public type ListRunsResponse record {
-    @jsondata:Name {value: "first_id"}
-    string firstId;
-    RunObject[] data;
-    @jsondata:Name {value: "last_id"}
-    string lastId;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
+public type InlineResponse2001Data record {
+    int index;
+    decimal[] embedding;
     string 'object;
 };
 
-# Specifies the format that the model must output. Compatible with [GPT-4o](/docs/models#gpt-4o), [GPT-4 Turbo](/docs/models#gpt-4-turbo-and-gpt-4), and all GPT-3.5 Turbo models since `gpt-3.5-turbo-1106`.
-# 
-# Setting to `{ "type": "json_schema", "json_schema": {...} }` enables Structured Outputs which ensures the model will match your supplied JSON schema. Learn more in the [Structured Outputs guide](/docs/guides/structured-outputs).
-# 
-# Setting to `{ "type": "json_object" }` enables JSON mode, which ensures the message the model generates is valid JSON.
-# 
-# **Important:** when using JSON mode, you **must** also instruct the model to produce JSON yourself via a system or user message. Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit, resulting in a long-running and seemingly "stuck" request. Also note that the message content may be partially cut off if `finish_reason="length"`, which indicates the generation exceeded `max_tokens` or the conversation exceeded the max context length
-public type AssistantsApiResponseFormatOption AssistantsApiResponseFormatOptionOneOf1|ResponseFormatText|ResponseFormatJsonObject|ResponseFormatJsonSchema;
-
-public type ProjectServiceAccountCreateResponse record {
-    # Service accounts can only have one role of type `member`
-    "member" role;
-    @jsondata:Name {value: "api_key"}
-    ProjectServiceAccountApiKey apiKey;
-    string name;
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
+public type ContentFilterIdResult record {
+    *ContentFilterResultBase;
     string id;
-    "organization.project.service_account" 'object;
 };
 
-public type RunStepDetailsToolCallsFunctionObject record {
-    # The definition of the function that was called
-    RunStepDetailsToolCallsFunctionObjectFunction 'function;
-    # The ID of the tool call object
-    string id;
-    # The type of tool call. This is always going to be `function` for this type of tool call
-    "function" 'type;
+public type ChatCompletionRequestMessage record {
+    # The role of the messages author
+    ChatCompletionRequestMessageRole role;
 };
 
-public type CreateRunRequest record {|
-    # Overrides the [instructions](/docs/api-reference/assistants/createAssistant) of the assistant. This is useful for modifying the behavior on a per-run basis
-    string? instructions?;
-    # Appends additional instructions at the end of the instructions for the run. This is useful for modifying the behavior on a per-run basis without overriding other instructions
-    @jsondata:Name {value: "additional_instructions"}
-    string? additionalInstructions?;
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata?;
-    # The ID of the [assistant](/docs/api-reference/assistants) to use to execute this run
-    @jsondata:Name {value: "assistant_id"}
-    string assistantId;
-    # Adds additional messages to the thread before creating the run
-    @jsondata:Name {value: "additional_messages"}
-    CreateMessageRequest[]? additionalMessages?;
-    # Override the tools the assistant can use for this run. This is useful for modifying the behavior on a per-run basis
-    AssistantObjectTools[]? tools?;
-    @jsondata:Name {value: "truncation_strategy"}
-    TruncationObject truncationStrategy?;
-    # An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    # 
-    # We generally recommend altering this or temperature but not both
-    @jsondata:Name {value: "top_p"}
-    decimal? topp = 1;
-    # The maximum number of completion tokens that may be used over the course of the run. The run will make a best effort to use only the number of completion tokens specified, across multiple turns of the run. If the run exceeds the number of completion tokens specified, the run will end with status `incomplete`. See `incomplete_details` for more info
-    @jsondata:Name {value: "max_completion_tokens"}
-    int? maxCompletionTokens?;
+public type ContentFilterDetectedResult record {
+    *ContentFilterResultBase;
+    boolean detected;
+};
+
+public type SpanPolygon record {
+    # The x-coordinate of the point
+    decimal x?;
+    # The y-coordinate of the point
+    decimal y?;
+};
+
+# The grounding enhancement that returns the bounding box of the objects detected in the image
+public type EnhancementGrounding record {
+    Line[] lines;
+};
+
+# `none` means the model will not call a function and instead generates a message. `auto` means the model can pick between generating a message or calling a function
+public type ChatCompletionToolChoiceOptionOneOf1 "none"|"auto";
+
+# Information about the content filtering results
+public type ContentFilterResultsBase record {
+    @jsondata:Name {value: "self_harm"}
+    ContentFilterSeverityResult selfHarm?;
+    @jsondata:Name {value: "custom_blocklists"}
+    ContentFilterIdResult[] customBlocklists?;
+    ContentFilterSeverityResult hate?;
+    ContentFilterDetectedResult profanity?;
+    ErrorBase 'error?;
+    ContentFilterSeverityResult sexual?;
+    ContentFilterSeverityResult violence?;
+};
+
+# Transcription request
+public type CreateTranscriptionRequest record {
+    # The audio file object to transcribe
+    record {byte[] fileContent; string fileName;} file;
     @jsondata:Name {value: "response_format"}
-    AssistantsApiResponseFormatOption responseFormat?;
-    @jsondata:Name {value: "parallel_tool_calls"}
-    ParallelToolCalls parallelToolCalls?;
-    # If `true`, returns a stream of events that happen during the Run as server-sent events, terminating when the Run enters a terminal state with a `data: [DONE]` message
-    boolean? 'stream?;
-    # What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic
-    decimal? temperature = 1;
-    @jsondata:Name {value: "tool_choice"}
-    AssistantsApiToolChoiceOption toolChoice?;
-    # The ID of the [Model](/docs/api-reference/models) to be used to execute this run. If a value is provided here, it will override the model associated with the assistant. If not, the model associated with the assistant will be used
-    string|"gpt-4o"|"gpt-4o-2024-11-20"|"gpt-4o-2024-08-06"|"gpt-4o-2024-05-13"|"gpt-4o-mini"|"gpt-4o-mini-2024-07-18"|"gpt-4-turbo"|"gpt-4-turbo-2024-04-09"|"gpt-4-0125-preview"|"gpt-4-turbo-preview"|"gpt-4-1106-preview"|"gpt-4-vision-preview"|"gpt-4"|"gpt-4-0314"|"gpt-4-0613"|"gpt-4-32k"|"gpt-4-32k-0314"|"gpt-4-32k-0613"|"gpt-3.5-turbo"|"gpt-3.5-turbo-16k"|"gpt-3.5-turbo-0613"|"gpt-3.5-turbo-1106"|"gpt-3.5-turbo-0125"|"gpt-3.5-turbo-16k-0613"? model?;
-    # The maximum number of prompt tokens that may be used over the course of the run. The run will make a best effort to use only the number of prompt tokens specified, across multiple turns of the run. If the run exceeds the number of prompt tokens specified, the run will end with status `incomplete`. See `incomplete_details` for more info
-    @jsondata:Name {value: "max_prompt_tokens"}
-    int? maxPromptTokens?;
-|};
-
-public type InputItemsArray int[];
-
-public type ListFineTuningJobCheckpointsResponse record {
-    @jsondata:Name {value: "first_id"}
-    string? firstId?;
-    FineTuningJobCheckpoint[] data;
-    @jsondata:Name {value: "last_id"}
-    string? lastId?;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
-    "list" 'object;
+    AudioResponseFormat responseFormat?;
+    # The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use log probability to automatically increase the temperature until certain thresholds are hit
+    decimal temperature = 0;
+    # The language of the input audio. Supplying the input language in ISO-639-1 format will improve accuracy and latency
+    string language?;
+    # An optional text to guide the model's style or continue a previous audio segment. The prompt should match the audio language
+    string prompt?;
 };
 
-# Controls which (if any) tool is called by the model.
-# `none` means the model will not call any tool and instead generates a message.
-# `auto` means the model can pick between generating a message or calling one or more tools.
-# `required` means the model must call one or more tools.
-# Specifying a particular tool via `{"type": "function", "function": {"name": "my_function"}}` forces the model to call that tool.
-# 
-# `none` is the default when no tools are present. `auto` is the default if tools are present
+public type InlineResponse200Usage record {
+    @jsondata:Name {value: "completion_tokens"}
+    decimal completionTokens;
+    @jsondata:Name {value: "prompt_tokens"}
+    decimal promptTokens;
+    @jsondata:Name {value: "total_tokens"}
+    decimal totalTokens;
+};
+
+# Controls which (if any) function is called by the model. `none` means the model will not call a function and instead generates a message. `auto` means the model can pick between generating a message or calling a function. Specifying a particular function via `{"type": "function", "function": {"name": "my_function"}}` forces the model to call that function
 public type ChatCompletionToolChoiceOption ChatCompletionToolChoiceOptionOneOf1|ChatCompletionNamedToolChoice;
 
-public type InviteDeleteResponse record {
-    boolean deleted;
-    string id;
-    # The object type, which is always `organization.invite.deleted`
-    "organization.invite.deleted" 'object;
+public type GenerateImagesResponse record {
+    # The result data of the operation, if successful
+    ImageResult[] data?;
+    # The unix timestamp when the operation was created
+    int created;
+    Error 'error?;
 };
 
-# Details on the action required to continue the run. Will be `null` if no action is required
-public type RunObjectRequiredAction record {
-    @jsondata:Name {value: "submit_tool_outputs"}
-    RunObjectRequiredActionSubmitToolOutputs submitToolOutputs;
-    # For now, this is always `submit_tool_outputs`
-    "submit_tool_outputs" 'type;
+# Represents the Queries record for the operation: embeddings_create
+public type EmbeddingsCreateQueries record {
+    # api version
+    @http:Query {name: "api-version"}
+    string apiVersion;
 };
 
-# The default strategy. This strategy currently uses a `max_chunk_size_tokens` of `800` and `chunk_overlap_tokens` of `400`
-public type AutoChunkingStrategyRequestParam record {|
-    # Always `auto`
-    "auto" 'type;
-|};
+# Translation request
+public type CreateTranslationRequest record {
+    # The audio file to translate
+    record {byte[] fileContent; string fileName;} file;
+    @jsondata:Name {value: "response_format"}
+    AudioResponseFormat responseFormat?;
+    # The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use log probability to automatically increase the temperature until certain thresholds are hit
+    decimal temperature = 0;
+    # An optional text to guide the model's style or continue a previous audio segment. The prompt should be in English
+    string prompt?;
+};
+
+# The style of the generated images
+public type ImageStyle "vivid"|"natural";
+
+public type Enhancement record {
+    # The grounding enhancement that returns the bounding box of the objects detected in the image
+    EnhancementGrounding grounding?;
+};
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
 @display {label: "Connection Config"}
 public type ConnectionConfig record {|
-    # Configurations related to client authentication
-    http:BearerTokenConfig auth;
+    # Provides Auth configurations needed when communicating with a remote HTTP endpoint.
+    http:BearerTokenConfig|ApiKeysConfig auth;
     # The HTTP version understood by the client
     http:HttpVersion httpVersion = http:HTTP_2_0;
     # Configurations related to HTTP/1.x protocol
@@ -265,542 +162,371 @@ public type ConnectionConfig record {|
     boolean laxDataBinding = true;
 |};
 
-# The ranking options for the file search. If not specified, the file search tool will use the `auto` ranker and a score_threshold of 0.
-# 
-# See the [file search tool documentation](/docs/assistants/tools/file-search#customizing-file-search-settings) for more information
-public type FileSearchRankingOptions record {
-    # The score threshold for the file search. All values must be a floating point number between 0 and 1
-    @jsondata:Name {value: "score_threshold"}
-    decimal scoreThreshold;
-    # The ranker to use for the file search. If not specified will use the `auto` ranker
-    "auto"|"default_2024_08_21" ranker?;
+# Information about the content filtering category (hate, sexual, violence, self_harm), if it has been detected, as well as the severity level (very_low, low, medium, high-scale that determines the intensity and risk level of harmful content) and if it has been filtered or not. Information about third party text and profanity, if it has been detected, and if it has been filtered or not. And information about customer block list, if it has been filtered and its id
+public type ContentFilterChoiceResults record {
+    *ContentFilterResultsBase;
+    *ContentFilterChoiceResultsAllOf2;
+    *ContentFilterChoiceResultsContentFilterChoiceResultsAllOf23;
 };
 
-public type AssistantToolsFileSearchTypeOnly record {
-    # The type of tool being defined: `file_search`
-    "file_search" 'type;
+public type InlineResponse200Choices record {
+    @jsondata:Name {value: "content_filter_results"}
+    ContentFilterChoiceResults contentFilterResults?;
+    @jsondata:Name {value: "finish_reason"}
+    string finishReason?;
+    int index?;
+    string text?;
+    InlineResponse200Logprobs? logprobs?;
 };
 
-public type AssistantToolsFileSearch record {
-    @jsondata:Name {value: "file_search"}
-    AssistantToolsFileSearchFileSearch fileSearch?;
-    # The type of tool being defined: `file_search`
-    "file_search" 'type;
+# The type of enhancements needed.
+public type ExtensionsChatCompletionsRequest_enhancements record {
+    # Request object to specify if grounding enhancement is needed.
+    ExtensionsChatCompletionsRequest_enhancements_grounding grounding?;
+    # Request object to specify if ocr enhancement is needed.
+    ExtensionsChatCompletionsRequest_enhancements_ocr ocr?;
 };
 
-public type AuditLogOrganizationupdatedChangesRequestedSettings record {
-    # Visibility of the threads page which shows messages created with the Assistants API and Playground. One of `ANY_ROLE`, `OWNERS`, or `NONE`
-    @jsondata:Name {value: "threads_ui_visibility"}
-    string threadsUiVisibility?;
-    # Visibility of the usage dashboard which shows activity and costs for your organization. One of `ANY_ROLE` or `OWNERS`
-    @jsondata:Name {value: "usage_dashboard_visibility"}
-    string usageDashboardVisibility?;
+# The type of the tool. Currently, only `function` is supported
+public type ChatCompletionToolType "function";
+
+# Represents the Queries record for the operation: ExtensionsChatCompletions_Create
+public type ExtensionsChatCompletionsCreateQueries record {
+    # api version
+    @http:Query {name: "api-version"}
+    string apiVersion;
 };
 
-public type CreateMessageRequestAttachments record {
-    # The ID of the file to attach to the message
-    @jsondata:Name {value: "file_id"}
-    string fileId?;
-    # The tools to add this file to
-    CreateMessageRequestTools[] tools?;
+# Information about the content filtering category (hate, sexual, violence, self_harm), if it has been detected, as well as the severity level (very_low, low, medium, high-scale that determines the intensity and risk level of harmful content) and if it has been filtered or not. Information about jailbreak content and profanity, if it has been detected, and if it has been filtered or not. And information about customer block list, if it has been filtered and its id
+public type ContentFilterPromptResults record {
+    *ContentFilterResultsBase;
+    ContentFilterDetectedResult jailbreak?;
 };
 
-# The ranking options for the file search
-public type RunStepDetailsToolCallsFileSearchRankingOptionsObject record {
-    # The score threshold for the file search. All values must be a floating point number between 0 and 1
-    @jsondata:Name {value: "score_threshold"}
-    decimal scoreThreshold;
-    # The ranker used for the file search
-    "default_2024_08_21" ranker;
+# Setting to `json_object` enables JSON mode. This guarantees that the message the model generates is valid JSON
+public type ChatCompletionResponseFormat "text"|"json_object"?;
+
+# Request object to specify if grounding enhancement is needed.
+public type ExtensionsChatCompletionsRequest_enhancements_grounding record {
+    boolean enabled = false;
 };
 
-# The tool calls generated by the model, such as function calls
-public type ChatCompletionMessageToolCalls ChatCompletionMessageToolCall[];
+public type InputItemsString string;
 
-public type CreateEmbeddingRequest record {|
-    # Input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or array of token arrays. The input must not exceed the max input tokens for the model (8192 tokens for `text-embedding-ada-002`), cannot be an empty string, and any array must be 2048 dimensions or less. [Example Python code](https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken) for counting tokens
-    string|string[]|int[]|InputItemsArray[] input;
-    # The format to return the embeddings in. Can be either `float` or [`base64`](https://pypi.org/project/pybase64/)
-    @jsondata:Name {value: "encoding_format"}
-    "float"|"base64" encodingFormat = "float";
-    # ID of the model to use. You can use the [List models](/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](/docs/models) for descriptions of them
-    string|"text-embedding-ada-002"|"text-embedding-3-small"|"text-embedding-3-large" model;
-    # A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](/docs/guides/safety-best-practices#end-user-ids)
-    string user?;
-    # The number of dimensions the resulting output embeddings should have. Only supported in `text-embedding-3` and later models
-    @constraint:Int {minValue: 1}
-    int dimensions?;
-|};
+# The type of the tool call, in this case `function`
+public type ToolCallType "function";
 
-# Represents the Queries record for the operation: listVectorStoreFiles
-public type ListVectorStoreFilesQueries record {
-    # Filter by file status. One of `in_progress`, `completed`, `failed`, `cancelled`
-    "in_progress"|"completed"|"failed"|"cancelled" filter?;
-    # A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list
-    string before?;
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-    # Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order
-    "asc"|"desc" 'order = "desc";
+public type ChatCompletionTool record {
+    ChatCompletionToolFunction 'function;
+    # The type of the tool. Currently, only `function` is supported
+    ChatCompletionToolType 'type;
 };
 
-public type ChatCompletionTokenLogprobTopLogprobs record {
-    # The log probability of this token, if it is within the top 20 most likely tokens. Otherwise, the value `-9999.0` is used to signify that the token is very unlikely
-    decimal logprob;
-    # A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token
-    int[]? bytes;
-    # The token
-    string token;
+public type ContentFilterChoiceResultsAllOf2 record {
+    ContentFilterDetectedResult protected_material_text?;
 };
 
-# Learn about [audio inputs](/docs/guides/audio)
-public type ChatCompletionRequestMessageContentPartAudio record {
-    @jsondata:Name {value: "input_audio"}
-    ChatCompletionRequestMessageContentPartAudioInputAudio inputAudio;
-    # The type of the content part. Always `input_audio`
-    "input_audio" 'type;
+# An object specifying the format that the model must output. Used to enable JSON mode.
+public type CreateChatCompletionRequest_response_format record {
+    # Setting to `json_object` enables JSON mode. This guarantees that the message the model generates is valid JSON
+    ChatCompletionResponseFormat? 'type?;
 };
 
-# Whether to enable [parallel function calling](/docs/guides/function-calling#configuring-parallel-function-calling) during tool use
-public type ParallelToolCalls boolean;
-
-public type CreateModerationRequest record {
-    # Input (or inputs) to classify. Can be a single string, an array of strings, or
-    # an array of multi-modal input objects similar to other models
-    string|string[]|(record {"image_url" 'type; record {string url;} image_url;}|record {"text" 'type; string text;})[] input;
-    # The content moderation model you would like to use. Learn more in
-    # [the moderation guide](/docs/guides/moderation), and learn about
-    # available models [here](/docs/models#moderation)
-    string|"omni-moderation-latest"|"omni-moderation-2024-09-26"|"text-moderation-latest"|"text-moderation-stable" model = "omni-moderation-latest";
+# Represents the Queries record for the operation: ChatCompletions_Create
+public type ChatCompletionsCreateQueries record {
+    # api version
+    @http:Query {name: "api-version"}
+    string apiVersion;
 };
 
-public type CreateUploadRequest record {|
-    # The name of the file to upload
-    string filename;
-    # The intended purpose of the uploaded file.
-    # 
-    # See the [documentation on File purposes](/docs/api-reference/files/create#files-create-purpose)
-    "assistants"|"batch"|"fine-tune"|"vision" purpose;
-    # The MIME type of the file.
-    # 
-    # This must fall within the supported MIME types for your file purpose. See the supported MIME types for assistants and vision
-    @jsondata:Name {value: "mime_type"}
-    string mimeType;
-    # The number of bytes in the file you are uploading
-    int bytes;
-|};
-
-# Represents an individual project
-public type Project record {
-    # The Unix timestamp (in seconds) of when the project was archived or `null`
-    @jsondata:Name {value: "archived_at"}
-    int? archivedAt?;
-    # The name of the project. This appears in reporting
-    string name;
-    # The Unix timestamp (in seconds) of when the project was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    # The object type, which is always `organization.project`
-    "organization.project" 'object;
-    # `active` or `archived`
-    "active"|"archived" status;
+# The data source to be used for the Azure OpenAI on your data feature
+public type DataSource record {
+    # The data source type
+    string 'type;
+    # The parameters to be used for the data source in runtime
+    record {} parameters?;
 };
 
-public type TranscriptionWord record {
-    # Start time of the word in seconds
-    float 'start;
-    # End time of the word in seconds
-    float end;
-    # The text content of the word
-    string word;
-};
-
-# A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs
-public type AssistantObjectToolResources record {
-    @jsondata:Name {value: "code_interpreter"}
-    AssistantObjectToolResourcesCodeInterpreter codeInterpreter?;
-    @jsondata:Name {value: "file_search"}
-    AssistantObjectToolResourcesFileSearch fileSearch?;
-};
-
-public type CreateSpeechRequest record {|
-    # The voice to use when generating the audio. Supported voices are `alloy`, `echo`, `fable`, `onyx`, `nova`, and `shimmer`. Previews of the voices are available in the [Text to speech guide](/docs/guides/text-to-speech#voice-options)
-    "alloy"|"echo"|"fable"|"onyx"|"nova"|"shimmer" voice;
-    # The text to generate audio for. The maximum length is 4096 characters
-    @constraint:String {maxLength: 4096}
-    string input;
-    # The format to audio in. Supported formats are `mp3`, `opus`, `aac`, `flac`, `wav`, and `pcm`
-    @jsondata:Name {value: "response_format"}
-    "mp3"|"opus"|"aac"|"flac"|"wav"|"pcm" responseFormat = "mp3";
-    # One of the available [TTS models](/docs/models#tts): `tts-1` or `tts-1-hd`
-    string|"tts-1"|"tts-1-hd" model;
-    # The speed of the generated audio. Select a value from `0.25` to `4.0`. `1.0` is the default
-    @constraint:Number {minValue: 0.25, maxValue: 4}
-    decimal speed = 1;
-|};
-
-public type CreateVectorStoreFileRequest record {|
-    @jsondata:Name {value: "chunking_strategy"}
-    ChunkingStrategyRequestParam chunkingStrategy?;
-    # A [File](/docs/api-reference/files) ID that the vector store should use. Useful for tools like `file_search` that can access files
-    @jsondata:Name {value: "file_id"}
-    string fileId;
-|};
-
-public type CreateMessageRequestTools AssistantToolsCode|AssistantToolsFileSearchTypeOnly;
-
-public type ProjectUserCreateRequest record {
-    # `owner` or `member`
-    "owner"|"member" role;
-    # The ID of the user
-    @jsondata:Name {value: "user_id"}
-    string userId;
-};
-
-# Learn about [text inputs](/docs/guides/text-generation)
-public type ChatCompletionRequestMessageContentPartText record {
-    # The text content
+# A content line object consisting of an adjacent sequence of content elements, such as words and selection marks
+public type Line record {
+    # An array of spans that represent detected objects and its bounding box information
+    Span[] spans;
     string text;
-    # The type of the content part
-    "text" 'type;
 };
 
-public type ModifyThreadRequest record {|
-    @jsondata:Name {value: "tool_resources"}
-    ModifyThreadRequestToolResources? toolResources?;
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata?;
+# Represents the Queries record for the operation: Translations_Create
+public type TranslationsCreateQueries record {
+    # api version
+    @http:Query {name: "api-version"}
+    string apiVersion;
+};
+
+# The image url or encoded image if successful, and an error otherwise
+public type ImageResult record {
+    # The prompt that was used to generate the image, if there was any revision to the prompt
+    @jsondata:Name {value: "revised_prompt"}
+    string revisedPrompt?;
+    # The base64 encoded image
+    @jsondata:Name {value: "b64_json"}
+    string b64Json?;
+    # The image url
+    string url?;
+};
+
+public type ContentFilterChoiceResultsContentFilterChoiceResultsAllOf23 record {
+    ContentFilterDetectedWithCitationResult protected_material_code?;
+};
+
+# Defines the format of the output
+public type AudioResponseFormat "json"|"text"|"srt"|"verbose_json"|"vtt";
+
+public type ExtensionsChatCompletionChoice record {
+    *ChatCompletionChoiceCommon;
+    Enhancement enhancements?;
+    # A chat message
+    Message message?;
+};
+
+public type ContentFilterSeverityResult record {
+    *ContentFilterResultBase;
+    "safe"|"low"|"medium"|"high" severity;
+};
+
+public type InlineResponse2001Usage record {
+    @jsondata:Name {value: "prompt_tokens"}
+    int promptTokens;
+    @jsondata:Name {value: "total_tokens"}
+    int totalTokens;
+};
+
+public type DeploymentIdCompletionsBody record {
+    # Defaults to null. Modify the likelihood of specified tokens appearing in the completion. Accepts a json object that maps tokens (specified by their token ID in the GPT tokenizer) to an associated bias value from -100 to 100. You can use this tokenizer tool (which works for both GPT-2 and GPT-3) to convert text to token IDs. Mathematically, the bias is added to the logits generated by the model prior to sampling. The exact effect will vary per model, but values between -1 and 1 should decrease or increase likelihood of selection; values like -100 or 100 should result in a ban or exclusive selection of the relevant token. As an example, you can pass {"50256" &#58; -100} to prevent the <|endoftext|> token from being generated
+    @jsondata:Name {value: "logit_bias"}
+    record {} logitBias?;
+    # The token count of your prompt plus max_tokens cannot exceed the model's context length. Most models have a context length of 2048 tokens (except for the newest models, which support 4096). Has minimum of 0
+    @jsondata:Name {value: "max_tokens"}
+    int? maxTokens = 16;
+    # Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics
+    @jsondata:Name {value: "presence_penalty"}
+    decimal presencePenalty = 0;
+    # Echo back the prompt in addition to the completion
+    boolean? echo = false;
+    # The suffix that comes after a completion of inserted text
+    string? suffix?;
+    # How many completions to generate for each prompt. Minimum of 1 and maximum of 128 allowed.
+    # Note: Because this parameter generates many completions, it can quickly consume your token quota. Use carefully and ensure that you have reasonable settings for max_tokens and stop
+    int? n = 1;
+    # Include the log probabilities on the logprobs most likely tokens, as well the chosen tokens. For example, if logprobs is 5, the API will return a list of the 5 most likely tokens. The API will always return the logprob of the sampled token, so there may be up to logprobs+1 elements in the response.
+    # Minimum of 0 and maximum of 5 allowed
+    int? logprobs?;
+    # An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
+    # We generally recommend altering this or temperature but not both
+    @jsondata:Name {value: "top_p"}
+    decimal? topp = 1;
+    # Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim
+    @jsondata:Name {value: "frequency_penalty"}
+    decimal frequencyPenalty = 0;
+    # Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence
+    string|string[]? stop?;
+    # Generates best_of completions server-side and returns the "best" (the one with the highest log probability per token). Results cannot be streamed.
+    # When used with n, best_of controls the number of candidate completions and n specifies how many to return - best_of must be greater than n.
+    # Note: Because this parameter generates many completions, it can quickly consume your token quota. Use carefully and ensure that you have reasonable settings for max_tokens and stop. Has maximum value of 128
+    @jsondata:Name {value: "best_of"}
+    int bestOf?;
+    # Whether to stream back partial progress. If set, tokens will be sent as data-only server-sent events as they become available, with the stream terminated by a data: [DONE] message
+    boolean? 'stream = false;
+    # What sampling temperature to use. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer.
+    # We generally recommend altering this or top_p but not both
+    decimal? temperature = 1;
+    @jsondata:Name {value: "completion_config"}
+    string? completionConfig?;
+    # The prompt(s) to generate completions for, encoded as a string or array of strings.
+    # Note that <|endoftext|> is the document separator that the model sees during training, so if a prompt is not specified the model will generate as if from the beginning of a new document. Maximum allowed size of string list is 2048
+    string|string[]? prompt?;
+    # A unique identifier representing your end-user, which can help monitoring and detecting abuse
+    string user?;
+};
+
+# Provides API key configurations needed when communicating with a remote HTTP endpoint.
+public type ApiKeysConfig record {|
+    string apiKey;
 |};
 
-# The text content that is part of a message
-public type MessageContentTextObject record {
-    MessageContentTextObjectText text;
-    # Always `text`
-    "text" 'type;
+# Translation or transcription response when response_format was json
+public type AudioResponse record {
+    # Translated or transcribed text
+    string text;
 };
 
-public type DeleteMessageResponse record {
-    boolean deleted;
+public type DeploymentIdEmbeddingsBody record {
+    # Input text to get embeddings for, encoded as a string. To get embeddings for multiple inputs in a single request, pass an array of strings. Each input must not exceed 2048 tokens in length.
+    # Unless you are embedding code, we suggest replacing newlines (\n) in your input with a single space, as we have observed inferior results when newlines are present.
+    string|InputItemsString[]? input;
+    # A unique identifier representing your end-user, which can help monitoring and detecting abuse.
+    string user?;
+    # input type of embedding search to use
+    string input_type?;
+};
+
+# Specifies a tool the model should use. Use to force the model to call a specific function
+public type ChatCompletionNamedToolChoice record {
+    ChatCompletionNamedToolChoiceFunction 'function?;
+    # The type of the tool. Currently, only `function` is supported
+    "function" 'type?;
+};
+
+# A chat message
+public type Message record {
+    # The role of the author of this message
+    "system"|"user"|"assistant"|"tool" role;
+    # The recipient of the message in the format of <namespace>.<operation>. Present if and only if the recipient is tool
+    string recipient?;
+    # The conversation context
+    MessageContext? context?;
+    # The index of the message in the conversation
+    int index?;
+    # Whether the message ends the turn
+    @jsondata:Name {value: "end_turn"}
+    boolean endTurn?;
+    # The contents of the message
+    string content;
+};
+
+# The size of the generated images
+public type ImageSize "1792x1024"|"1024x1792"|"1024x1024";
+
+public type ContentFilterResultBase record {
+    boolean filtered;
+};
+
+public type InlineResponse200 record {
+    int created;
+    @jsondata:Name {value: "prompt_filter_results"}
+    PromptFilterResults promptFilterResults?;
+    InlineResponse200Usage usage?;
+    string model;
     string id;
-    "thread.message.deleted" 'object;
+    InlineResponse200Choices[] choices;
+    string 'object;
 };
 
-# Represents the Queries record for the operation: listMessages
-public type ListMessagesQueries record {
-    # Filter messages by the run ID that generated them
-    @http:Query {name: "run_id"}
-    string runId?;
-    # A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list
-    string before?;
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-    # Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order
-    "asc"|"desc" 'order = "desc";
-};
-
-public type AssistantsNamedToolChoiceFunction record {
+# Deprecated and replaced by `tool_calls`. The name and arguments of a function that should be called, as generated by the model
+public type ChatCompletionFunctionCall record {
     # The name of the function to call
     string name;
+    # The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function
+    string arguments;
 };
 
-# Represents an embedding vector returned by embedding endpoint
-public type Embedding record {
-    # The index of the embedding in the list of embeddings
-    int index;
-    # The embedding vector, which is a list of floats. The length of vector depends on the model as listed in the [embedding guide](/docs/guides/embeddings)
-    decimal[] embedding;
-    # The object type, which is always "embedding"
-    "embedding" 'object;
+# A span object that represents a detected object and its bounding box information
+public type Span record {
+    # The character offset within the text where the span begins. This offset is defined as the position of the first character of the span, counting from the start of the text as Unicode codepoints
+    int offset;
+    # An array of objects representing points in the polygon that encloses the detected object
+    SpanPolygon[] polygon;
+    # The length of the span in characters, measured in Unicode codepoints
+    int length;
+    # The text content of the span that represents the detected object
+    string text;
 };
 
-# The details for events with this `type`
-public type AuditLogRateLimitdeleted record {
-    # The rate limit ID
-    string id?;
-};
+# The role of the messages author
+public type ChatCompletionRequestMessageRole "system"|"user"|"assistant"|"tool"|"function";
 
-# The refusal content generated by the assistant
-public type MessageContentRefusalObject record {
-    string refusal;
-    # Always `refusal`
-    "refusal" 'type;
-};
-
-# Represents the Queries record for the operation: listFineTuningEvents
-public type ListFineTuningEventsQueries record {
-    # Number of events to retrieve
-    int 'limit = 20;
-    # Identifier for the last event from the previous pagination request
-    string after?;
-};
-
-public type RunStepDetailsMessageCreationObjectMessageCreation record {
-    # The ID of the message that was created by this run step
-    @jsondata:Name {value: "message_id"}
-    string messageId;
-};
-
-public type RunStepDetailsToolCallsFileSearchResultObjectContent record {
-    # The text content of the file
-    string text?;
-    # The type of the content
-    "text" 'type?;
-};
-
-# The details for events with this `type`
-public type AuditLogLoginfailed record {
-    # The error message of the failure
-    @jsondata:Name {value: "error_message"}
-    string errorMessage?;
-    # The error code of the failure
-    @jsondata:Name {value: "error_code"}
-    string errorCode?;
-};
-
-# Represents the Queries record for the operation: usage-completions
-public type UsageCompletionsQueries record {
-    # Start time (Unix seconds) of the query time range, inclusive
-    @http:Query {name: "start_time"}
-    int startTime;
-    # Return only usage for these models
-    string[] models?;
-    # Return only usage for these users
-    @http:Query {name: "user_ids"}
-    string[] userIds?;
-    # Return only usage for these API keys
-    @http:Query {name: "api_key_ids"}
-    string[] apiKeyIds?;
-    # End time (Unix seconds) of the query time range, exclusive
-    @http:Query {name: "end_time"}
-    int endTime?;
-    # If `true`, return batch jobs only. If `false`, return non-batch jobs only. By default, return both
-    boolean batch?;
-    # Specifies the number of buckets to return.
-    # - `bucket_width=1d`: default: 7, max: 31
-    # - `bucket_width=1h`: default: 24, max: 168
-    # - `bucket_width=1m`: default: 60, max: 1440
-    int 'limit?;
-    # Group the usage data by the specified fields. Support fields include `project_id`, `user_id`, `api_key_id`, `model`, `batch` or any combination of them
-    @http:Query {name: "group_by"}
-    ("project_id"|"user_id"|"api_key_id"|"model"|"batch")[] groupBy?;
-    # A cursor for use in pagination. Corresponding to the `next_page` field from the previous response
-    string page?;
-    # Width of each time bucket in response. Currently `1m`, `1h` and `1d` are supported, default to `1d`
-    @http:Query {name: "bucket_width"}
-    "1m"|"1h"|"1d" bucketWidth = "1d";
-    # Return only usage for these projects
-    @http:Query {name: "project_ids"}
-    string[] projectIds?;
+public type ChatCompletionChoiceCommon record {
+    @jsondata:Name {value: "finish_reason"}
+    string finishReason?;
+    int index?;
 };
 
 public type CreateChatCompletionRequest record {
-    # An integer between 0 and 20 specifying the number of most likely tokens to return at each token position, each with an associated log probability. `logprobs` must be set to `true` if this parameter is used
-    @jsondata:Name {value: "top_logprobs"}
-    int? topLogprobs?;
-    # Developer-defined tags and values used for filtering completions
-    # in the [dashboard](https://platform.openai.com/chat-completions)
-    record {|string...;|}? metadata?;
-    # Modify the likelihood of specified tokens appearing in the completion.
-    # 
-    # Accepts a JSON object that maps tokens (specified by their token ID in the tokenizer) to an associated bias value from -100 to 100. Mathematically, the bias is added to the logits generated by the model prior to sampling. The exact effect will vary per model, but values between -1 and 1 should decrease or increase likelihood of selection; values like -100 or 100 should result in a ban or exclusive selection of the relevant token
-    @jsondata:Name {value: "logit_bias"}
-    record {|int...;|}? logitBias?;
-    # This feature is in Beta.
-    # If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result.
-    # Determinism is not guaranteed, and you should refer to the `system_fingerprint` response parameter to monitor changes in the backend
-    int? seed?;
-    # Deprecated in favor of `tools`.
-    # 
-    # A list of functions the model may generate JSON inputs for
-    # 
-    # # Deprecated
-    @constraint:Array {maxLength: 128, minLength: 1}
-    @deprecated
-    ChatCompletionFunctions[] functions?;
-    # Deprecated in favor of `tool_choice`.
-    # 
-    # Controls which (if any) function is called by the model.
-    # `none` means the model will not call a function and instead generates a message.
-    # `auto` means the model can pick between generating a message or calling a function.
-    # Specifying a particular function via `{"name": "my_function"}` forces the model to call that function.
-    # 
-    # `none` is the default when no functions are present. `auto` is the default if functions are present
-    # 
-    # # Deprecated
+    *ChatCompletionsRequestCommon;
+    # An object specifying the format that the model must output. Used to enable JSON mode.
+    CreateChatCompletionRequest_response_format response_format?;
+    # If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result.Determinism is not guaranteed, and you should refer to the `system_fingerprint` response parameter to monitor changes in the backend.
+    int? seed = 0;
+    # Deprecated in favor of `tools`. A list of functions the model may generate JSON inputs for.
+    ChatCompletionFunction[] functions?;
+    # Deprecated in favor of `tool_choice`. Controls how the model responds to function calls. "none" means the model does not call a function, and responds to the end-user. "auto" means the model can pick between an end-user or calling a function.  Specifying a particular function via `{"name":\ "my_function"}` forces the model to call that function. "none" is the default when no functions are present. "auto" is the default if functions are present.
     @jsondata:Name {value: "function_call"}
-    @deprecated
-    "none"|"auto"|ChatCompletionFunctionCallOption functionCall?;
-    # Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-    # 
-    # [See more information about frequency and presence penalties.](/docs/guides/text-generation)
-    @jsondata:Name {value: "presence_penalty"}
-    decimal? presencePenalty = 0;
-    # A list of tools the model may call. Currently, only functions are supported as a tool. Use this to provide a list of functions the model may generate JSON inputs for. A max of 128 functions are supported
+    "none"|"auto"|record {string name;} functionCall?;
+    # A list of messages comprising the conversation so far. [Example Python code](https://github.com/openai/openai-cookbook/blob/main/examples/How_to_format_inputs_to_ChatGPT_models.ipynb).
+    ChatCompletionRequestMessage[] messages;
+    @jsondata:Name {value: "tool_choice"}
+    ChatCompletionToolChoiceOption toolChoice?;
+    # A list of tools the model may call. Currently, only functions are supported as a tool. Use this to provide a list of functions the model may generate JSON inputs for.
     ChatCompletionTool[] tools?;
-    # Whether to return log probabilities of the output tokens or not. If true, returns the log probabilities of each output token returned in the `content` of `message`
-    boolean? logprobs = false;
+    # How many chat completion choices to generate for each input message.
+    int? n = 1;
+};
+
+public type ChatCompletionsResponseCommon record {
+    # The Unix timestamp (in seconds) of when the chat completion was created
+    int created;
+    # Usage statistics for the completion request
+    CompletionUsage usage?;
+    # The model used for the chat completion
+    string model;
+    # A unique identifier for the chat completion
+    string id;
+    # Can be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism
+    @jsondata:Name {value: "system_fingerprint"}
+    string systemFingerprint?;
+    # The object type
+    ChatCompletionResponseObject 'object;
+};
+
+# Represents the Queries record for the operation: Completions_Create
+public type CompletionsCreateQueries record {
+    # api version
+    @http:Query {name: "api-version"}
+    string apiVersion;
+};
+
+# The format in which the generated images are returned
+public type ImagesResponseFormat "url"|"b64_json";
+
+public type ErrorBase record {
+    string code?;
+    string message?;
+};
+
+public type ChatCompletionsRequestCommon record {
     # An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    # 
     # We generally recommend altering this or `temperature` but not both
     @jsondata:Name {value: "top_p"}
     decimal? topp = 1;
-    # An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and [reasoning tokens](/docs/guides/reasoning)
-    @jsondata:Name {value: "max_completion_tokens"}
-    int? maxCompletionTokens?;
-    # Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-    # 
-    # [See more information about frequency and presence penalties.](/docs/guides/text-generation)
+    # Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim
     @jsondata:Name {value: "frequency_penalty"}
-    decimal? frequencyPenalty = 0;
-    # Output types that you would like the model to generate for this request.
-    # Most models are capable of generating text, which is the default:
-    # 
-    # `["text"]`
-    # 
-    # The `gpt-4o-audio-preview` model can also be used to [generate audio](/docs/guides/audio). To
-    # request that this model generate both text and audio responses, you can
-    # use:
-    # 
-    # `["text", "audio"]`
-    ChatCompletionModalities? modalities?;
-    # An object specifying the format that the model must output. Compatible with [GPT-4o](/docs/models#gpt-4o), [GPT-4o mini](/docs/models#gpt-4o-mini), [GPT-4 Turbo](/docs/models#gpt-4-turbo-and-gpt-4) and all GPT-3.5 Turbo models newer than `gpt-3.5-turbo-1106`.
-    # 
-    # Setting to `{ "type": "json_schema", "json_schema": {...} }` enables Structured Outputs which ensures the model will match your supplied JSON schema. Learn more in the [Structured Outputs guide](/docs/guides/structured-outputs).
-    # 
-    # Setting to `{ "type": "json_object" }` enables JSON mode, which ensures the message the model generates is valid JSON.
-    # 
-    # **Important:** when using JSON mode, you **must** also instruct the model to produce JSON yourself via a system or user message. Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit, resulting in a long-running and seemingly "stuck" request. Also note that the message content may be partially cut off if `finish_reason="length"`, which indicates the generation exceeded `max_tokens` or the conversation exceeded the max context length
-    @jsondata:Name {value: "response_format"}
-    ResponseFormatText|ResponseFormatJsonObject|ResponseFormatJsonSchema responseFormat?;
-    # If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format) as they become available, with the stream terminated by a `data: [DONE]` message. [Example Python code](https://cookbook.openai.com/examples/how_to_stream_completions)
+    decimal frequencyPenalty = 0;
+    # Modify the likelihood of specified tokens appearing in the completion. Accepts a json object that maps tokens (specified by their token ID in the tokenizer) to an associated bias value from -100 to 100. Mathematically, the bias is added to the logits generated by the model prior to sampling. The exact effect will vary per model, but values between -1 and 1 should decrease or increase likelihood of selection; values like -100 or 100 should result in a ban or exclusive selection of the relevant token
+    @jsondata:Name {value: "logit_bias"}
+    record {}? logitBias?;
+    # Up to 4 sequences where the API will stop generating further tokens
+    string|string[]? stop = ();
+    # If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only server-sent events as they become available, with the stream terminated by a `data: [DONE]` message
     boolean? 'stream = false;
+    # The maximum number of tokens allowed for the generated answer. By default, the number of tokens the model can return will be (4096 - prompt tokens)
+    @jsondata:Name {value: "max_tokens"}
+    int maxTokens = 4096;
+    # Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics
+    @jsondata:Name {value: "presence_penalty"}
+    decimal presencePenalty = 0;
     # What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
-    # 
     # We generally recommend altering this or `top_p` but not both
     decimal? temperature = 1;
-    @jsondata:Name {value: "tool_choice"}
-    ChatCompletionToolChoiceOption toolChoice?;
-    # ID of the model to use. See the [model endpoint compatibility](/docs/models#model-endpoint-compatibility) table for details on which models work with the Chat API
-    string|"o1-preview"|"o1-preview-2024-09-12"|"o1-mini"|"o1-mini-2024-09-12"|"gpt-4o"|"gpt-4o-2024-11-20"|"gpt-4o-2024-08-06"|"gpt-4o-2024-05-13"|"gpt-4o-realtime-preview"|"gpt-4o-realtime-preview-2024-10-01"|"gpt-4o-audio-preview"|"gpt-4o-audio-preview-2024-10-01"|"chatgpt-4o-latest"|"gpt-4o-mini"|"gpt-4o-mini-2024-07-18"|"gpt-4-turbo"|"gpt-4-turbo-2024-04-09"|"gpt-4-0125-preview"|"gpt-4-turbo-preview"|"gpt-4-1106-preview"|"gpt-4-vision-preview"|"gpt-4"|"gpt-4-0314"|"gpt-4-0613"|"gpt-4-32k"|"gpt-4-32k-0314"|"gpt-4-32k-0613"|"gpt-3.5-turbo"|"gpt-3.5-turbo-16k"|"gpt-3.5-turbo-0301"|"gpt-3.5-turbo-0613"|"gpt-3.5-turbo-1106"|"gpt-3.5-turbo-0125"|"gpt-3.5-turbo-16k-0613" model;
-    # Specifies the latency tier to use for processing the request. This parameter is relevant for customers subscribed to the scale tier service:
-    #   - If set to 'auto', and the Project is Scale tier enabled, the system will utilize scale tier credits until they are exhausted.
-    #   - If set to 'auto', and the Project is not Scale tier enabled, the request will be processed using the default service tier with a lower uptime SLA and no latency guarentee.
-    #   - If set to 'default', the request will be processed using the default service tier with a lower uptime SLA and no latency guarentee.
-    #   - When not set, the default behavior is 'auto'.
-    # 
-    #   When this parameter is set, the response body will include the `service_tier` utilized
-    @jsondata:Name {value: "service_tier"}
-    "auto"|"default"? serviceTier = "auto";
-    # Parameters for audio output. Required when audio output is requested with
-    # `modalities: ["audio"]`. [Learn more](/docs/guides/audio)
-    CreateChatCompletionRequestAudio? audio?;
-    # The maximum number of [tokens](/tokenizer) that can be generated in the chat completion. This value can be used to control [costs](https://openai.com/api/pricing/) for text generated via API.
-    # 
-    # This value is now deprecated in favor of `max_completion_tokens`, and is not compatible with [o1 series models](/docs/guides/reasoning)
-    # 
-    # # Deprecated
-    @jsondata:Name {value: "max_tokens"}
-    @deprecated
-    int? maxTokens?;
-    # Whether or not to store the output of this chat completion request
-    # for use in our [model distillation](/docs/guides/distillation) or [evals](/docs/guides/evals) products
-    boolean? store = false;
-    # How many chat completion choices to generate for each input message. Note that you will be charged based on the number of generated tokens across all of the choices. Keep `n` as `1` to minimize costs
-    int? n = 1;
-    # Up to 4 sequences where the API will stop generating further tokens
-    string|string[]? stop?;
-    @jsondata:Name {value: "parallel_tool_calls"}
-    ParallelToolCalls parallelToolCalls?;
-    # Configuration for a [Predicted Output](/docs/guides/predicted-outputs),
-    # which can greatly improve response times when large parts of the model
-    # response are known ahead of time. This is most common when you are
-    # regenerating a file with only minor changes to most of the content
-    PredictionContent? prediction?;
-    # A list of messages comprising the conversation so far. Depending on the
-    # [model](/docs/models) you use, different message types (modalities) are
-    # supported, like [text](/docs/guides/text-generation),
-    # [images](/docs/guides/vision), and [audio](/docs/guides/audio)
-    @constraint:Array {minLength: 1}
-    ChatCompletionRequestMessage[] messages;
-    @jsondata:Name {value: "stream_options"}
-    ChatCompletionStreamOptions? streamOptions?;
-    # A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](/docs/guides/safety-best-practices#end-user-ids)
+    # A unique identifier representing your end-user, which can help Azure OpenAI to monitor and detect abuse
     string user?;
 };
 
-# The payload used to update the rate limits
-public type AuditLogRateLimitupdatedChangesRequested record {
-    # The maximum batch input tokens per day. Only relevant for certain models
-    @jsondata:Name {value: "batch_1_day_max_input_tokens"}
-    int batch1DayMaxInputTokens?;
-    # The maximum tokens per minute
-    @jsondata:Name {value: "max_tokens_per_1_minute"}
-    int maxTokensPer1Minute?;
-    # The maximum images per minute. Only relevant for certain models
-    @jsondata:Name {value: "max_images_per_1_minute"}
-    int maxImagesPer1Minute?;
-    # The maximum audio megabytes per minute. Only relevant for certain models
-    @jsondata:Name {value: "max_audio_megabytes_per_1_minute"}
-    int maxAudioMegabytesPer1Minute?;
-    # The maximum requests per minute
-    @jsondata:Name {value: "max_requests_per_1_minute"}
-    int maxRequestsPer1Minute?;
-    # The maximum requests per day. Only relevant for certain models
-    @jsondata:Name {value: "max_requests_per_1_day"}
-    int maxRequestsPer1Day?;
+# The conversation context
+public type MessageContext record {
+    # Messages exchanged between model and extensions prior to final message from model
+    Message[]? messages?;
 };
 
-# A list of the categories, and whether they are flagged or not
-public type CreateModerationResponseCategories record {
-    # Content that includes instructions or advice that facilitate the planning or execution of wrongdoing that also includes violence, or that gives advice or instruction on the procurement of any weapon
-    @jsondata:Name {value: "illicit/violent"}
-    boolean illicitViolent;
-    # Content that encourages performing acts of self-harm, such as suicide, cutting, and eating disorders, or that gives instructions or advice on how to commit such acts
-    @jsondata:Name {value: "self-harm/instructions"}
-    boolean selfHarmInstructions;
-    # Content that expresses, incites, or promotes harassing language towards any target
-    boolean harassment;
-    # Content that depicts death, violence, or physical injury in graphic detail
-    @jsondata:Name {value: "violence/graphic"}
-    boolean violenceGraphic;
-    # Content that includes instructions or advice that facilitate the planning or execution of wrongdoing, or that gives advice or instruction on how to commit illicit acts. For example, "how to shoplift" would fit this category
-    boolean illicit;
-    # Content where the speaker expresses that they are engaging or intend to engage in acts of self-harm, such as suicide, cutting, and eating disorders
-    @jsondata:Name {value: "self-harm/intent"}
-    boolean selfHarmIntent;
-    # Hateful content that also includes violence or serious harm towards the targeted group based on race, gender, ethnicity, religion, nationality, sexual orientation, disability status, or caste
-    @jsondata:Name {value: "hate/threatening"}
-    boolean hateThreatening;
-    # Sexual content that includes an individual who is under 18 years old
-    @jsondata:Name {value: "sexual/minors"}
-    boolean sexualMinors;
-    # Harassment content that also includes violence or serious harm towards any target
-    @jsondata:Name {value: "harassment/threatening"}
-    boolean harassmentThreatening;
-    # Content that expresses, incites, or promotes hate based on race, gender, ethnicity, religion, nationality, sexual orientation, disability status, or caste. Hateful content aimed at non-protected groups (e.g., chess players) is harassment
-    boolean hate;
-    # Content that promotes, encourages, or depicts acts of self-harm, such as suicide, cutting, and eating disorders
-    @jsondata:Name {value: "self-harm"}
-    boolean selfHarm;
-    # Content meant to arouse sexual excitement, such as the description of sexual activity, or that promotes sexual services (excluding sex education and wellness)
-    boolean sexual;
-    # Content that depicts death, violence, or physical injury
-    boolean violence;
-};
-
-# A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs
-public type ModifyAssistantRequestToolResources record {
-    @jsondata:Name {value: "code_interpreter"}
-    ModifyAssistantRequestToolResourcesCodeInterpreter codeInterpreter?;
-    @jsondata:Name {value: "file_search"}
-    ModifyAssistantRequestToolResourcesFileSearch fileSearch?;
-};
+# The role of the author of the response message
+public type ChatCompletionResponseMessageRole "assistant";
 
 # Usage statistics for the completion request
 public type CompletionUsage record {
@@ -810,1256 +536,47 @@ public type CompletionUsage record {
     # Number of tokens in the prompt
     @jsondata:Name {value: "prompt_tokens"}
     int promptTokens;
-    @jsondata:Name {value: "completion_tokens_details"}
-    CompletionUsageCompletionTokensDetails completionTokensDetails?;
-    @jsondata:Name {value: "prompt_tokens_details"}
-    CompletionUsagePromptTokensDetails promptTokensDetails?;
     # Total number of tokens used in the request (prompt + completion)
     @jsondata:Name {value: "total_tokens"}
     int totalTokens;
 };
 
-# The payload used to create the API key
-public type AuditLogApiKeycreatedData record {
-    # A list of scopes allowed for the API key, e.g. `["api.model.request"]`
-    string[] scopes?;
-};
-
-# Tool call objects
-public type RunToolCallObject record {
-    # The function definition
-    RunToolCallObjectFunction 'function;
-    # The ID of the tool call. This ID must be referenced when you submit the tool outputs in using the [Submit tool outputs to run](/docs/api-reference/runs/submitToolOutputs) endpoint
-    string id;
-    # The type of tool call the output is required for. For now, this is always `function`
-    "function" 'type;
-};
-
-# The aggregated audio transcriptions usage details of the specific time bucket
-public type UsageAudioTranscriptionsResult record {
-    # The number of seconds processed
-    int seconds;
-    # The count of requests made to the model
-    @jsondata:Name {value: "num_model_requests"}
-    int numModelRequests;
-    # When `group_by=project_id`, this field provides the project ID of the grouped usage result
-    @jsondata:Name {value: "project_id"}
-    string? projectId?;
-    # When `group_by=user_id`, this field provides the user ID of the grouped usage result
-    @jsondata:Name {value: "user_id"}
-    string? userId?;
-    # When `group_by=model`, this field provides the model name of the grouped usage result
-    string? model?;
-    # When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result
-    @jsondata:Name {value: "api_key_id"}
-    string? apiKeyId?;
-    "organization.usage.audio_transcriptions.result" 'object;
-};
-
-# Details of the tool call
-public type RunStepDetailsToolCallsObject record {
-    # An array of tool calls the run step was involved in. These can be associated with one of three types of tools: `code_interpreter`, `file_search`, or `function`
-    @jsondata:Name {value: "tool_calls"}
-    RunStepDetailsToolCallsObjectToolCalls[] toolCalls;
-    # Always `tool_calls`
-    "tool_calls" 'type;
-};
-
-# A vector store is a collection of processed files can be used by the `file_search` tool
-public type VectorStoreObject record {
-    @jsondata:Name {value: "file_counts"}
-    VectorStoreObjectFileCounts fileCounts;
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata;
-    # The Unix timestamp (in seconds) for when the vector store will expire
-    @jsondata:Name {value: "expires_at"}
-    int? expiresAt?;
-    @jsondata:Name {value: "expires_after"}
-    VectorStoreExpirationAfter expiresAfter?;
-    # The Unix timestamp (in seconds) for when the vector store was last active
-    @jsondata:Name {value: "last_active_at"}
-    int? lastActiveAt;
-    # The total number of bytes used by the files in the vector store
-    @jsondata:Name {value: "usage_bytes"}
-    int usageBytes;
-    # The name of the vector store
-    string name;
-    # The Unix timestamp (in seconds) for when the vector store was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    # The object type, which is always `vector_store`
-    "vector_store" 'object;
-    # The status of the vector store, which can be either `expired`, `in_progress`, or `completed`. A status of `completed` indicates that the vector store is ready for use
-    "expired"|"in_progress"|"completed" status;
-};
-
-# The function definition
-public type RunToolCallObjectFunction record {
-    # The name of the function
-    string name;
-    # The arguments that the model expects you to pass to the function
-    string arguments;
-};
-
-# The API Key used to perform the audit logged action
-public type AuditLogActorApiKey record {
-    @jsondata:Name {value: "service_account"}
-    AuditLogActorServiceAccount serviceAccount?;
-    # The tracking id of the API key
-    string id?;
-    # The type of API key. Can be either `user` or `service_account`
-    "user"|"service_account" 'type?;
-    # The user who performed the audit logged action
-    AuditLogActorUser user?;
-};
-
-public type CreateCompletionRequest record {
-    # Modify the likelihood of specified tokens appearing in the completion.
-    # 
-    # Accepts a JSON object that maps tokens (specified by their token ID in the GPT tokenizer) to an associated bias value from -100 to 100. You can use this [tokenizer tool](/tokenizer?view=bpe) to convert text to token IDs. Mathematically, the bias is added to the logits generated by the model prior to sampling. The exact effect will vary per model, but values between -1 and 1 should decrease or increase likelihood of selection; values like -100 or 100 should result in a ban or exclusive selection of the relevant token.
-    # 
-    # As an example, you can pass `{"50256": -100}` to prevent the <|endoftext|> token from being generated
-    @jsondata:Name {value: "logit_bias"}
-    record {|int...;|}? logitBias?;
-    # If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result.
-    # 
-    # Determinism is not guaranteed, and you should refer to the `system_fingerprint` response parameter to monitor changes in the backend
-    int? seed?;
-    # The maximum number of [tokens](/tokenizer) that can be generated in the completion.
-    # 
-    # The token count of your prompt plus `max_tokens` cannot exceed the model's context length. [Example Python code](https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken) for counting tokens
-    @jsondata:Name {value: "max_tokens"}
-    int? maxTokens = 16;
-    # Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-    # 
-    # [See more information about frequency and presence penalties.](/docs/guides/text-generation)
-    @jsondata:Name {value: "presence_penalty"}
-    decimal? presencePenalty = 0;
-    # Echo back the prompt in addition to the completion
-    boolean? echo = false;
-    # The suffix that comes after a completion of inserted text.
-    # 
-    # This parameter is only supported for `gpt-3.5-turbo-instruct`
-    string? suffix?;
-    # How many completions to generate for each prompt.
-    # 
-    # **Note:** Because this parameter generates many completions, it can quickly consume your token quota. Use carefully and ensure that you have reasonable settings for `max_tokens` and `stop`
-    int? n = 1;
-    # Include the log probabilities on the `logprobs` most likely output tokens, as well the chosen tokens. For example, if `logprobs` is 5, the API will return a list of the 5 most likely tokens. The API will always return the `logprob` of the sampled token, so there may be up to `logprobs+1` elements in the response.
-    # 
-    # The maximum value for `logprobs` is 5
-    int? logprobs?;
-    # An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    # 
-    # We generally recommend altering this or `temperature` but not both
-    @jsondata:Name {value: "top_p"}
-    decimal? topp = 1;
-    # Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-    # 
-    # [See more information about frequency and presence penalties.](/docs/guides/text-generation)
-    @jsondata:Name {value: "frequency_penalty"}
-    decimal? frequencyPenalty = 0;
-    # Generates `best_of` completions server-side and returns the "best" (the one with the highest log probability per token). Results cannot be streamed.
-    # 
-    # When used with `n`, `best_of` controls the number of candidate completions and `n` specifies how many to return – `best_of` must be greater than `n`.
-    # 
-    # **Note:** Because this parameter generates many completions, it can quickly consume your token quota. Use carefully and ensure that you have reasonable settings for `max_tokens` and `stop`
-    @jsondata:Name {value: "best_of"}
-    int? bestOf = 1;
-    # Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence
-    string|string[]?? stop?;
-    # Whether to stream back partial progress. If set, tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format) as they become available, with the stream terminated by a `data: [DONE]` message. [Example Python code](https://cookbook.openai.com/examples/how_to_stream_completions)
-    boolean? 'stream = false;
-    # What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
-    # 
-    # We generally recommend altering this or `top_p` but not both
-    decimal? temperature = 1;
-    # ID of the model to use. You can use the [List models](/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](/docs/models) for descriptions of them
-    string|"gpt-3.5-turbo-instruct"|"davinci-002"|"babbage-002" model;
-    @jsondata:Name {value: "stream_options"}
-    ChatCompletionStreamOptions? streamOptions?;
-    # The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of token arrays.
-    # 
-    # Note that <|endoftext|> is the document separator that the model sees during training, so if a prompt is not specified the model will generate as if from the beginning of a new document
-    string|string[]|int[]|PromptItemsArray[]? prompt = "<|endoftext|>";
-    # A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](/docs/guides/safety-best-practices#end-user-ids)
-    string user?;
-};
-
-public type AssistantToolsFunction record {
-    FunctionObject 'function;
-    # The type of tool being defined: `function`
-    "function" 'type;
-};
-
-# Represents a completion response from the API. Note: both the streamed and non-streamed response objects share the same shape (unlike the chat endpoint)
-public type CreateCompletionResponse record {
-    # The Unix timestamp (in seconds) of when the completion was created
-    int created;
-    # Usage statistics for the completion request
-    CompletionUsage usage?;
-    # The model used for completion
-    string model;
-    # A unique identifier for the completion
-    string id;
-    # The list of completion choices the model generated for the input prompt
-    CreateCompletionResponseChoices[] choices;
-    # This fingerprint represents the backend configuration that the model runs with.
-    # 
-    # Can be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism
-    @jsondata:Name {value: "system_fingerprint"}
-    string systemFingerprint?;
-    # The object type, which is always "text_completion"
-    "text_completion" 'object;
-};
-
-# Log probability information for the choice
-public type CreateChatCompletionResponseLogprobs record {
-    # A list of message refusal tokens with log probability information
-    ChatCompletionTokenLogprob[]? refusal;
-    # A list of message content tokens with log probability information
-    ChatCompletionTokenLogprob[]? content;
-};
-
-public type PromptItemsArray int[];
-
-# Controls for how a thread will be truncated prior to the run. Use this to control the intial context window of the run
-public type TruncationObject record {
-    # The number of most recent messages from the thread when constructing the context for the run
-    @jsondata:Name {value: "last_messages"}
-    int? lastMessages?;
-    # The truncation strategy to use for the thread. The default is `auto`. If set to `last_messages`, the thread will be truncated to the n most recent messages in the thread. When set to `auto`, messages in the middle of the thread will be dropped to fit the context length of the model, `max_prompt_tokens`
-    "auto"|"last_messages" 'type;
-};
-
-# Represents the Queries record for the operation: listVectorStores
-public type ListVectorStoresQueries record {
-    # A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list
-    string before?;
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-    # Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order
-    "asc"|"desc" 'order = "desc";
-};
-
-public type ResponseFormatJsonObject record {
-    # The type of response format being defined: `json_object`
-    "json_object" 'type;
-};
-
-public type ChatCompletionRequestAssistantMessageContentPart ChatCompletionRequestMessageContentPartText|ChatCompletionRequestMessageContentPartRefusal;
-
-public type RunStepDetailsToolCallsObjectToolCalls RunStepDetailsToolCallsCodeObject|RunStepDetailsToolCallsFileSearchObject|RunStepDetailsToolCallsFunctionObject;
-
-public type VectorStoreObjectFileCounts record {
-    # The number of files that are currently being processed
-    @jsondata:Name {value: "in_progress"}
-    int inProgress;
-    # The total number of files
-    int total;
-    # The number of files that were cancelled
-    int cancelled;
-    # The number of files that have been successfully processed
-    int completed;
-    # The number of files that have failed to process
-    int failed;
-};
-
-# Represents the Queries record for the operation: usage-costs
-public type UsageCostsQueries record {
-    # Start time (Unix seconds) of the query time range, inclusive
-    @http:Query {name: "start_time"}
-    int startTime;
-    # End time (Unix seconds) of the query time range, exclusive
-    @http:Query {name: "end_time"}
-    int endTime?;
-    # A limit on the number of buckets to be returned. Limit can range between 1 and 180, and the default is 7
-    int 'limit = 7;
-    # Group the costs by the specified fields. Support fields include `project_id`, `line_item` and any combination of them
-    @http:Query {name: "group_by"}
-    ("project_id"|"line_item")[] groupBy?;
-    # A cursor for use in pagination. Corresponding to the `next_page` field from the previous response
-    string page?;
-    # Width of each time bucket in response. Currently only `1d` is supported, default to `1d`
-    @http:Query {name: "bucket_width"}
-    "1d" bucketWidth = "1d";
-    # Return only costs for these projects
-    @http:Query {name: "project_ids"}
-    string[] projectIds?;
-};
-
-public type ProjectUserListResponse record {
-    @jsondata:Name {value: "first_id"}
-    string firstId;
-    ProjectUser[] data;
-    @jsondata:Name {value: "last_id"}
-    string lastId;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
-    string 'object;
-};
-
-public type ListMessagesResponse record {
-    string 'object;
-    MessageObject[] data;
-    string first_id;
-    string last_id;
-    boolean has_more;
-};
-
-# Represents an individual API key in a project
-public type ProjectApiKey record {
-    ProjectApiKeyOwner owner;
-    # The name of the API key
-    string name;
-    # The Unix timestamp (in seconds) of when the API key was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The redacted value of the API key
-    @jsondata:Name {value: "redacted_value"}
-    string redactedValue;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    # The object type, which is always `organization.project.api_key`
-    "organization.project.api_key" 'object;
-};
-
-# The hyperparameters used for the fine-tuning job. See the [fine-tuning guide](/docs/guides/fine-tuning) for more details
-public type FineTuningJobHyperparameters record {
-    # The number of epochs to train the model for. An epoch refers to one full cycle through the training dataset.
-    # "auto" decides the optimal number of epochs based on the size of the dataset. If setting the number manually, we support any number between 1 and 50 epochs
-    @jsondata:Name {value: "n_epochs"}
-    "auto"|int nEpochs = "auto";
-};
-
-public type ListAssistantsResponse record {
-    @jsondata:Name {value: "first_id"}
-    string firstId;
-    AssistantObject[] data;
-    @jsondata:Name {value: "last_id"}
-    string lastId;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
-    string 'object;
-};
-
-# Represents the Queries record for the operation: list-project-users
-public type ListProjectUsersQueries record {
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-};
-
-# The details for events with this `type`
-public type AuditLogApiKeydeleted record {
-    # The tracking ID of the API key
-    string id?;
-};
-
-public type InlineResponse2001 CreateTranslationResponseJson|CreateTranslationResponseVerboseJson;
-
-# The text content that is part of a message
-public type MessageRequestContentTextObject record {
-    # Text content to be sent to the model
-    string text;
-    # Always `text`
-    "text" 'type;
-};
-
-# Represents the Queries record for the operation: list-projects
-public type ListProjectsQueries record {
-    # If `true` returns all projects including those that have been `archived`. Archived projects are not included by default
-    @http:Query {name: "include_archived"}
-    boolean includeArchived = false;
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-};
-
-public type CreateThreadAndRunRequestTools AssistantToolsCode|AssistantToolsFileSearch|AssistantToolsFunction;
-
-# The aggregated costs details of the specific time bucket
-public type CostsResult record {
-    # The monetary value in its associated currency
-    CostsResultAmount amount?;
-    # When `group_by=line_item`, this field provides the line item of the grouped costs result
-    @jsondata:Name {value: "line_item"}
-    string? lineItem?;
-    # When `group_by=project_id`, this field provides the project ID of the grouped costs result
-    @jsondata:Name {value: "project_id"}
-    string? projectId?;
-    "organization.costs.result" 'object;
-};
-
-# Represents the Queries record for the operation: listRuns
-public type ListRunsQueries record {
-    # A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list
-    string before?;
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-    # Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order
-    "asc"|"desc" 'order = "desc";
-};
-
-public type RunStepDetailsToolCallsCodeObjectCodeInterpreterOutputs RunStepDetailsToolCallsCodeOutputLogsObject|RunStepDetailsToolCallsCodeOutputImageObject;
-
-# Represents a transcription response returned by model, based on the provided input
-public type CreateTranscriptionResponseJson record {
-    # The transcribed text
-    string text;
-};
-
-# Usage statistics related to the run step. This value will be `null` while the run step's status is `in_progress`
-public type RunStepCompletionUsage record {
-    # Number of completion tokens used over the course of the run step
-    @jsondata:Name {value: "completion_tokens"}
-    int completionTokens;
-    # Number of prompt tokens used over the course of the run step
-    @jsondata:Name {value: "prompt_tokens"}
-    int promptTokens;
-    # Total number of tokens used (prompt + completion)
-    @jsondata:Name {value: "total_tokens"}
-    int totalTokens;
-};
-
-public type TranscriptionSegment record {
-    # Start time of the segment in seconds
-    float 'start;
-    # Temperature parameter used for generating the segment
-    float temperature;
-    # Average logprob of the segment. If the value is lower than -1, consider the logprobs failed
-    @jsondata:Name {value: "avg_logprob"}
-    float avgLogprob;
-    # Probability of no speech in the segment. If the value is higher than 1.0 and the `avg_logprob` is below -1, consider this segment silent
-    @jsondata:Name {value: "no_speech_prob"}
-    float noSpeechProb;
-    # End time of the segment in seconds
-    float end;
-    # Array of token IDs for the text content
-    int[] tokens;
-    # Unique identifier of the segment
-    int id;
-    # Text content of the segment
-    string text;
-    # Seek offset of the segment
-    int seek;
-    # Compression ratio of the segment. If the value is greater than 2.4, consider the compression failed
-    @jsondata:Name {value: "compression_ratio"}
-    float compressionRatio;
-};
-
-public type DeleteVectorStoreFileResponse record {
-    boolean deleted;
-    string id;
-    "vector_store.file.deleted" 'object;
-};
-
-public type BatchErrors record {
-    BatchErrorsData[] data?;
-    # The object type, which is always `list`
-    string 'object?;
-};
-
-public type CreateImageRequest record {
-    # The format in which the generated images are returned. Must be one of `url` or `b64_json`. URLs are only valid for 60 minutes after the image has been generated
-    @jsondata:Name {value: "response_format"}
-    "url"|"b64_json"? responseFormat = "url";
-    # The size of the generated images. Must be one of `256x256`, `512x512`, or `1024x1024` for `dall-e-2`. Must be one of `1024x1024`, `1792x1024`, or `1024x1792` for `dall-e-3` models
-    "256x256"|"512x512"|"1024x1024"|"1792x1024"|"1024x1792"? size = "1024x1024";
-    # The model to use for image generation
-    string|"dall-e-2"|"dall-e-3"? model = "dall-e-2";
-    # The style of the generated images. Must be one of `vivid` or `natural`. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images. This param is only supported for `dall-e-3`
-    "vivid"|"natural"? style = "vivid";
-    # A text description of the desired image(s). The maximum length is 1000 characters for `dall-e-2` and 4000 characters for `dall-e-3`
-    string prompt;
-    # A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](/docs/guides/safety-best-practices#end-user-ids)
-    string user?;
-    # The number of images to generate. Must be between 1 and 10. For `dall-e-3`, only `n=1` is supported
-    int? n = 1;
-    # The quality of the image that will be generated. `hd` creates images with finer details and greater consistency across the image. This param is only supported for `dall-e-3`
-    "standard"|"hd" quality = "standard";
-};
-
-# Represents an individual service account in a project
-public type ProjectServiceAccount record {
-    # `owner` or `member`
-    "owner"|"member" role;
-    # The name of the service account
-    string name;
-    # The Unix timestamp (in seconds) of when the service account was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    # The object type, which is always `organization.project.service_account`
-    "organization.project.service_account" 'object;
-};
-
-public type ProjectListResponse record {
-    @jsondata:Name {value: "first_id"}
-    string firstId;
-    Project[] data;
-    @jsondata:Name {value: "last_id"}
-    string lastId;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
-    "list" 'object;
-};
-
-public type UsageTimeBucket record {
-    UsageTimeBucketResult[] result;
-    @jsondata:Name {value: "start_time"}
-    int startTime;
-    @jsondata:Name {value: "end_time"}
-    int endTime;
-    "bucket" 'object;
-};
-
-# The details for events with this `type`
-public type AuditLogProjectupdated record {
-    @jsondata:Name {value: "changes_requested"}
-    AuditLogProjectupdatedChangesRequested changesRequested?;
-    # The project ID
-    string id?;
-};
-
-# `none` means the model will not call any tool and instead generates a message. `auto` means the model can pick between generating a message or calling one or more tools. `required` means the model must call one or more tools
-public type ChatCompletionToolChoiceOptionOneOf1 "none"|"auto"|"required";
-
-# The details for events with this `type`
-public type AuditLogProjectarchived record {
-    # The project ID
-    string id?;
-};
-
-# Represents the Queries record for the operation: list-project-service-accounts
-public type ListProjectServiceAccountsQueries record {
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-};
-
-# The aggregated images usage details of the specific time bucket
-public type UsageImagesResult record {
-    # The number of images processed
-    int images;
-    # The count of requests made to the model
-    @jsondata:Name {value: "num_model_requests"}
-    int numModelRequests;
-    # When `group_by=size`, this field provides the image size of the grouped usage result
-    string? size?;
-    # When `group_by=project_id`, this field provides the project ID of the grouped usage result
-    @jsondata:Name {value: "project_id"}
-    string? projectId?;
-    # When `group_by=user_id`, this field provides the user ID of the grouped usage result
-    @jsondata:Name {value: "user_id"}
-    string? userId?;
-    # When `group_by=model`, this field provides the model name of the grouped usage result
-    string? model?;
-    # When `group_by=source`, this field provides the source of the grouped usage result, possible values are `image.generation`, `image.edit`, `image.variation`
-    string? 'source?;
-    # When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result
-    @jsondata:Name {value: "api_key_id"}
-    string? apiKeyId?;
-    "organization.usage.images.result" 'object;
-};
+# The object type
+public type ChatCompletionResponseObject "chat.completion";
 
-public type ModifyThreadRequestToolResourcesFileSearch record {
-    # The [vector store](/docs/api-reference/vector-stores/object) attached to this thread. There can be a maximum of 1 vector store attached to the thread
-    @jsondata:Name {value: "vector_store_ids"}
-    string[] vectorStoreIds?;
+# The response of the extensions chat completions
+public type ExtensionsChatCompletionsResponse record {
+    *ChatCompletionsResponseCommon;
+    ExtensionsChatCompletionChoice[] choices?;
 };
 
-# Details on the tool outputs needed for this run to continue
-public type RunObjectRequiredActionSubmitToolOutputs record {
-    # A list of the relevant tool calls
-    @jsondata:Name {value: "tool_calls"}
-    RunToolCallObject[] toolCalls;
+# Content filtering results for a single prompt in the request
+public type PromptFilterResult record {
+    @jsondata:Name {value: "content_filter_results"}
+    ContentFilterPromptResults contentFilterResults?;
+    @jsondata:Name {value: "prompt_index"}
+    int promptIndex?;
 };
 
-# The payload used to updated the service account
-public type AuditLogServiceAccountupdatedChangesRequested record {
-    # The role of the service account. Is either `owner` or `member`
-    string role?;
+# Represents the Queries record for the operation: ImageGenerations_Create
+public type ImageGenerationsCreateQueries record {
+    # api version
+    @http:Query {name: "api-version"}
+    string apiVersion;
 };
 
-# Represents the Queries record for the operation: usage-code-interpreter-sessions
-public type UsageCodeInterpreterSessionsQueries record {
-    # Start time (Unix seconds) of the query time range, inclusive
-    @http:Query {name: "start_time"}
-    int startTime;
-    # End time (Unix seconds) of the query time range, exclusive
-    @http:Query {name: "end_time"}
-    int endTime?;
-    # Specifies the number of buckets to return.
-    # - `bucket_width=1d`: default: 7, max: 31
-    # - `bucket_width=1h`: default: 24, max: 168
-    # - `bucket_width=1m`: default: 60, max: 1440
-    int 'limit?;
-    # Group the usage data by the specified fields. Support fields include `project_id`
-    @http:Query {name: "group_by"}
-    ("project_id")[] groupBy?;
-    # A cursor for use in pagination. Corresponding to the `next_page` field from the previous response
-    string page?;
-    # Width of each time bucket in response. Currently `1m`, `1h` and `1d` are supported, default to `1d`
-    @http:Query {name: "bucket_width"}
-    "1m"|"1h"|"1d" bucketWidth = "1d";
-    # Return only usage for these projects
-    @http:Query {name: "project_ids"}
-    string[] projectIds?;
-};
-
-public type CreateTranscriptionRequest record {|
-    # The timestamp granularities to populate for this transcription. `response_format` must be set `verbose_json` to use timestamp granularities. Either or both of these options are supported: `word`, or `segment`. Note: There is no additional latency for segment timestamps, but generating word timestamps incurs additional latency
-    @jsondata:Name {value: "timestamp_granularities[]"}
-    ("word"|"segment")[] timestampGranularities = ["segment"];
-    # The audio file object (not file name) to transcribe, in one of these formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm
-    record {byte[] fileContent; string fileName;} file;
-    @jsondata:Name {value: "response_format"}
-    AudioResponseFormat responseFormat?;
-    # The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use [log probability](https://en.wikipedia.org/wiki/Log_probability) to automatically increase the temperature until certain thresholds are hit
-    decimal temperature = 0;
-    # ID of the model to use. Only `whisper-1` (which is powered by our open source Whisper V2 model) is currently available
-    string|"whisper-1" model;
-    # The language of the input audio. Supplying the input language in [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) format will improve accuracy and latency
-    string language?;
-    # An optional text to guide the model's style or continue a previous audio segment. The [prompt](/docs/guides/speech-to-text#prompting) should match the audio language
-    string prompt?;
-|};
-
-# Details on why the run is incomplete. Will be `null` if the run is not incomplete
-public type RunObjectIncompleteDetails record {
-    # The reason why the run is incomplete. This will point to which specific token limit was reached over the course of the run
-    "max_completion_tokens"|"max_prompt_tokens" reason?;
-};
-
-public type MessageContentTextAnnotationsFileCitationObjectFileCitation record {
-    # The ID of the specific File the citation is from
-    @jsondata:Name {value: "file_id"}
-    string fileId;
-};
-
-public type SubmitToolOutputsRunRequestToolOutputs record {
-    # The output of the tool call to be submitted to continue the run
-    string output?;
-    # The ID of the tool call in the `required_action` object within the run object the output is being submitted for
-    @jsondata:Name {value: "tool_call_id"}
-    string toolCallId?;
-};
-
-public type ListBatchesResponse record {
-    @jsondata:Name {value: "first_id"}
-    string firstId?;
-    Batch[] data;
-    @jsondata:Name {value: "last_id"}
-    string lastId?;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
-    "list" 'object;
-};
-
-public type BatchErrorsData record {
-    # An error code identifying the error type
-    string code?;
-    # The name of the parameter that caused the error, if applicable
-    string? param?;
-    # The line number of the input file where the error occurred, if applicable
-    int? line?;
-    # A human-readable message providing more details about the error
-    string message?;
-};
-
-# Parameters for audio output. Required when audio output is requested with
-# `modalities: ["audio"]`. [Learn more](/docs/guides/audio)
-public type CreateChatCompletionRequestAudio record {
-    # The voice the model uses to respond. Supported voices are `ash`, `ballad`, `coral`, `sage`, and `verse` (also supported but not recommended are `alloy`, `echo`, and `shimmer`; these voices are less expressive)
-    "alloy"|"ash"|"ballad"|"coral"|"echo"|"sage"|"shimmer"|"verse" voice;
-    # Specifies the output audio format. Must be one of `wav`, `mp3`, `flac`,
-    # `opus`, or `pcm16`
-    "wav"|"mp3"|"flac"|"opus"|"pcm16" format;
-};
-
-public type CreateEmbeddingResponse record {
-    # The list of embeddings generated by the model
-    Embedding[] data;
-    # The usage information for the request
-    CreateEmbeddingResponseUsage usage;
-    # The name of the model used to generate the embedding
-    string model;
-    # The object type, which is always "list"
-    "list" 'object;
-};
-
-# A set of resources that are made available to the assistant's tools in this thread. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs
-public type CreateThreadRequestToolResources record {
-    @jsondata:Name {value: "code_interpreter"}
-    CreateAssistantRequestToolResourcesCodeInterpreter codeInterpreter?;
-    @jsondata:Name {value: "file_search"}
-    CreateThreadRequestToolResourcesFileSearch fileSearch?;
-};
-
-# Represents the Queries record for the operation: listRunSteps
-public type ListRunStepsQueries record {
-    # A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list
-    string before?;
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-    # A list of additional fields to include in the response. Currently the only supported value is `step_details.tool_calls[*].file_search.results[*].content` to fetch the file search result content.
-    # 
-    # See the [file search tool documentation](/docs/assistants/tools/file-search#customizing-file-search-settings) for more information
-    @http:Query {name: "include[]"}
-    ("step_details.tool_calls[*].file_search.results[*].content")[] include?;
-    # Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order
-    "asc"|"desc" 'order = "desc";
-};
-
-# Represents an execution run on a [thread](/docs/api-reference/threads)
-public type RunObject record {
-    # The Unix timestamp (in seconds) for when the run was cancelled
-    @jsondata:Name {value: "cancelled_at"}
-    int? cancelledAt;
-    # The instructions that the [assistant](/docs/api-reference/assistants) used for this run
-    string instructions;
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata;
-    # The ID of the [assistant](/docs/api-reference/assistants) used for execution of this run
-    @jsondata:Name {value: "assistant_id"}
-    string assistantId;
-    @jsondata:Name {value: "required_action"}
-    RunObjectRequiredAction? requiredAction;
-    # Usage statistics related to the run. This value will be `null` if the run is not in a terminal state (i.e. `in_progress`, `queued`, etc.)
-    RunCompletionUsage? usage;
-    # The Unix timestamp (in seconds) for when the run was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The list of tools that the [assistant](/docs/api-reference/assistants) used for this run
-    @constraint:Array {maxLength: 20}
-    AssistantObjectTools[] tools = [];
-    # The nucleus sampling value used for this run. If not set, defaults to 1
-    @jsondata:Name {value: "top_p"}
-    decimal? topp?;
-    # The maximum number of completion tokens specified to have been used over the course of the run
-    @jsondata:Name {value: "max_completion_tokens"}
-    int? maxCompletionTokens;
-    # The ID of the [thread](/docs/api-reference/threads) that was executed on as a part of this run
-    @jsondata:Name {value: "thread_id"}
-    string threadId;
-    # The Unix timestamp (in seconds) for when the run will expire
-    @jsondata:Name {value: "expires_at"}
-    int? expiresAt;
-    @jsondata:Name {value: "response_format"}
-    AssistantsApiResponseFormatOption responseFormat;
-    # The sampling temperature used for this run. If not set, defaults to 1
-    decimal? temperature?;
-    @jsondata:Name {value: "tool_choice"}
-    AssistantsApiToolChoiceOption toolChoice;
-    # The model that the [assistant](/docs/api-reference/assistants) used for this run
-    string model;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    @jsondata:Name {value: "last_error"}
-    RunObjectLastError? lastError;
-    @jsondata:Name {value: "incomplete_details"}
-    RunObjectIncompleteDetails? incompleteDetails;
-    @jsondata:Name {value: "truncation_strategy"}
-    TruncationObject truncationStrategy;
-    # The Unix timestamp (in seconds) for when the run was completed
-    @jsondata:Name {value: "completed_at"}
-    int? completedAt;
-    @jsondata:Name {value: "parallel_tool_calls"}
-    ParallelToolCalls parallelToolCalls;
-    # The Unix timestamp (in seconds) for when the run was started
-    @jsondata:Name {value: "started_at"}
-    int? startedAt;
-    # The Unix timestamp (in seconds) for when the run failed
-    @jsondata:Name {value: "failed_at"}
-    int? failedAt;
-    # The maximum number of prompt tokens specified to have been used over the course of the run
-    @jsondata:Name {value: "max_prompt_tokens"}
-    int? maxPromptTokens;
-    # The object type, which is always `thread.run`
-    "thread.run" 'object;
-    # The status of the run, which can be either `queued`, `in_progress`, `requires_action`, `cancelling`, `cancelled`, `failed`, `completed`, `incomplete`, or `expired`
-    "queued"|"in_progress"|"requires_action"|"cancelling"|"cancelled"|"failed"|"completed"|"incomplete"|"expired" status;
-};
-
-# A result instance of the file search
-public type RunStepDetailsToolCallsFileSearchResultObject record {
-    # The score of the result. All values must be a floating point number between 0 and 1
-    @constraint:Number {minValue: 0, maxValue: 1}
-    decimal score;
-    # The name of the file that result was found in
-    @jsondata:Name {value: "file_name"}
-    string fileName;
-    # The ID of the file that result was found in
-    @jsondata:Name {value: "file_id"}
-    string fileId;
-    # The content of the result that was found. The content is only included if requested via the include query parameter
-    RunStepDetailsToolCallsFileSearchResultObjectContent[] content?;
-};
-
-public type ChatCompletionRequestUserMessage record {
-    # The role of the messages author, in this case `user`
-    "user" role;
-    # An optional name for the participant. Provides the model information to differentiate between participants of the same role
-    string name?;
-    # The contents of the user message
-    string|ChatCompletionRequestUserMessageContentPart[] content;
-};
-
-public type ModifyAssistantRequestToolResourcesCodeInterpreter record {
-    # Overrides the list of [file](/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool
-    @jsondata:Name {value: "file_ids"}
-    string[] fileIds = [];
-};
-
-public type ResponseFormatJsonSchemaJsonSchema record {
-    # The schema for the response format, described as a JSON Schema object
-    ResponseFormatJsonSchemaSchema schema?;
-    # The name of the response format. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64
-    string name;
-    # A description of what the response format is for, used by the model to determine how to respond in the format
-    string description?;
-    # Whether to enable strict schema adherence when generating the output. If set to true, the model will always follow the exact schema defined in the `schema` field. Only a subset of JSON Schema is supported when `strict` is `true`. To learn more, read the [Structured Outputs guide](/docs/guides/structured-outputs)
-    boolean? strict = false;
-};
-
-public type ChatCompletionTool record {
-    FunctionObject 'function;
-    # The type of the tool. Currently, only `function` is supported
-    "function" 'type;
-};
-
-# Represents the Queries record for the operation: usage-moderations
-public type UsageModerationsQueries record {
-    # Start time (Unix seconds) of the query time range, inclusive
-    @http:Query {name: "start_time"}
-    int startTime;
-    # Return only usage for these models
-    string[] models?;
-    # Return only usage for these users
-    @http:Query {name: "user_ids"}
-    string[] userIds?;
-    # Return only usage for these API keys
-    @http:Query {name: "api_key_ids"}
-    string[] apiKeyIds?;
-    # End time (Unix seconds) of the query time range, exclusive
-    @http:Query {name: "end_time"}
-    int endTime?;
-    # Specifies the number of buckets to return.
-    # - `bucket_width=1d`: default: 7, max: 31
-    # - `bucket_width=1h`: default: 24, max: 168
-    # - `bucket_width=1m`: default: 60, max: 1440
-    int 'limit?;
-    # Group the usage data by the specified fields. Support fields include `project_id`, `user_id`, `api_key_id`, `model` or any combination of them
-    @http:Query {name: "group_by"}
-    ("project_id"|"user_id"|"api_key_id"|"model")[] groupBy?;
-    # A cursor for use in pagination. Corresponding to the `next_page` field from the previous response
-    string page?;
-    # Width of each time bucket in response. Currently `1m`, `1h` and `1d` are supported, default to `1d`
-    @http:Query {name: "bucket_width"}
-    "1m"|"1h"|"1d" bucketWidth = "1d";
-    # Return only usage for these projects
-    @http:Query {name: "project_ids"}
-    string[] projectIds?;
-};
-
-# Represents the Queries record for the operation: listFilesInVectorStoreBatch
-public type ListFilesInVectorStoreBatchQueries record {
-    # Filter by file status. One of `in_progress`, `completed`, `failed`, `cancelled`
-    "in_progress"|"completed"|"failed"|"cancelled" filter?;
-    # A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list
-    string before?;
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-    # Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order
-    "asc"|"desc" 'order = "desc";
-};
-
-# The expiration policy for a vector store
-public type VectorStoreExpirationAfter record {
-    # Anchor timestamp after which the expiration policy applies. Supported anchors: `last_active_at`
-    "last_active_at" anchor;
-    # The number of days after the anchor time that the vector store will expire
-    @constraint:Int {minValue: 1, maxValue: 365}
-    int days;
-};
-
-# The payload used to update the user
-public type AuditLogUserupdatedChangesRequested record {
-    # The role of the user. Is either `owner` or `member`
-    string role?;
-};
-
-# The details for events with this `type`
-public type AuditLogProjectcreated record {
-    # The payload used to create the project
-    AuditLogProjectcreatedData data?;
-    # The project ID
-    string id?;
-};
-
-# Controls which (if any) tool is called by the model.
-# `none` means the model will not call any tools and instead generates a message.
-# `auto` is the default value and means the model can pick between generating a message or calling one or more tools.
-# `required` means the model must call one or more tools before responding to the user.
-# Specifying a particular tool like `{"type": "file_search"}` or `{"type": "function", "function": {"name": "my_function"}}` forces the model to call that tool
-public type AssistantsApiToolChoiceOption AssistantsApiToolChoiceOptionOneOf1|AssistantsNamedToolChoice;
-
-public type ModifyMessageRequest record {|
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata?;
-|};
-
-public type RunStepDetailsToolCallsCodeOutputImageObject record {
-    RunStepDetailsToolCallsCodeOutputImageObjectImage image;
-    # Always `image`
-    "image" 'type;
-};
-
-# The details for events with this `type`
-public type AuditLogApiKeycreated record {
-    # The payload used to create the API key
-    AuditLogApiKeycreatedData data?;
-    # The tracking ID of the API key
-    string id?;
-};
-
-# The parameters the functions accepts, described as a JSON Schema object. See the [guide](/docs/guides/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format. 
-# 
-# Omitting `parameters` defines a function with an empty parameter list
-public type FunctionParameters record {
-};
-
-public type ProjectCreateRequest record {
-    # The friendly name of the project, this name appears in reports
-    string name;
-};
-
-# The `File` object represents a document that has been uploaded to OpenAI
-public type OpenAIFile record {
-    # The file identifier, which can be referenced in the API endpoints.
-    string id;
-    # The size of the file, in bytes.
-    int bytes;
-    # The Unix timestamp (in seconds) for when the file was created.
-    int created_at;
-    # The name of the file.
-    string filename;
-    # The object type, which is always `file`.
-    "file" 'object;
-    # The intended purpose of the file. Supported values are `assistants`, `assistants_output`, `batch`, `batch_output`, `fine-tune`, `fine-tune-results` and `vision`.
-    "assistants"|"assistants_output"|"batch"|"batch_output"|"fine-tune"|"fine-tune-results"|"vision" purpose;
-    # Deprecated. The current status of the file, which can be either `uploaded`, `processed`, or `error`.
-    # 
-    # # Deprecated
-    @deprecated
-    "uploaded"|"processed"|"error" status;
-    # Deprecated. For details on why a fine-tuning training file failed validation, see the `error` field on `fine_tuning.job`.
-    # 
-    # # Deprecated
-    @deprecated
-    string status_details?;
-};
-
-# Data about a previous audio response from the model. 
-# [Learn more](/docs/guides/audio)
-public type ChatCompletionRequestAssistantMessageAudio record {
-    # Unique identifier for a previous audio response from the model
-    string id;
-};
-
-# A list of the categories along with the input type(s) that the score applies to
-public type CreateModerationResponseCategoryAppliedInputTypes record {
-    # The applied input type(s) for the category 'illicit/violent'
-    @jsondata:Name {value: "illicit/violent"}
-    ("text")[] illicitViolent;
-    # The applied input type(s) for the category 'self-harm/instructions'
-    @jsondata:Name {value: "self-harm/instructions"}
-    ("text"|"image")[] selfHarmInstructions;
-    # The applied input type(s) for the category 'harassment'
-    ("text")[] harassment;
-    # The applied input type(s) for the category 'violence/graphic'
-    @jsondata:Name {value: "violence/graphic"}
-    ("text"|"image")[] violenceGraphic;
-    # The applied input type(s) for the category 'illicit'
-    ("text")[] illicit;
-    # The applied input type(s) for the category 'self-harm/intent'
-    @jsondata:Name {value: "self-harm/intent"}
-    ("text"|"image")[] selfHarmIntent;
-    # The applied input type(s) for the category 'hate/threatening'
-    @jsondata:Name {value: "hate/threatening"}
-    ("text")[] hateThreatening;
-    # The applied input type(s) for the category 'sexual/minors'
-    @jsondata:Name {value: "sexual/minors"}
-    ("text")[] sexualMinors;
-    # The applied input type(s) for the category 'harassment/threatening'
-    @jsondata:Name {value: "harassment/threatening"}
-    ("text")[] harassmentThreatening;
-    # The applied input type(s) for the category 'hate'
-    ("text")[] hate;
-    # The applied input type(s) for the category 'self-harm'
-    @jsondata:Name {value: "self-harm"}
-    ("text"|"image")[] selfHarm;
-    # The applied input type(s) for the category 'sexual'
-    ("text"|"image")[] sexual;
-    # The applied input type(s) for the category 'violence'
-    ("text"|"image")[] violence;
-};
-
-# The aggregated embeddings usage details of the specific time bucket
-public type UsageEmbeddingsResult record {
-    # The count of requests made to the model
-    @jsondata:Name {value: "num_model_requests"}
-    int numModelRequests;
-    # When `group_by=project_id`, this field provides the project ID of the grouped usage result
-    @jsondata:Name {value: "project_id"}
-    string? projectId?;
-    # When `group_by=user_id`, this field provides the user ID of the grouped usage result
-    @jsondata:Name {value: "user_id"}
-    string? userId?;
-    # When `group_by=model`, this field provides the model name of the grouped usage result
-    string? model?;
-    # The aggregated number of input tokens used
-    @jsondata:Name {value: "input_tokens"}
-    int inputTokens;
-    # When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result
-    @jsondata:Name {value: "api_key_id"}
-    string? apiKeyId?;
-    "organization.usage.embeddings.result" 'object;
-};
-
-# The project that the action was scoped to. Absent for actions not scoped to projects
-public type AuditLogProject record {
-    # The project title
-    string name?;
-    # The project ID
-    string id?;
-};
-
-# Represents the Queries record for the operation: listBatches
-public type ListBatchesQueries record {
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-};
-
-public type ListVectorStoreFilesResponse record {
-    string 'object;
-    VectorStoreFileObject[] data;
-    string first_id;
-    string last_id;
-    boolean has_more;
-};
-
-public type RunStepDetailsToolCallsCodeOutputImageObjectImage record {
-    # The [file](/docs/api-reference/files) ID of the image
-    @jsondata:Name {value: "file_id"}
-    string fileId;
-};
-
-public type Batch record {
-    # The Unix timestamp (in seconds) for when the batch was cancelled
-    @jsondata:Name {value: "cancelled_at"}
-    int cancelledAt?;
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata?;
-    @jsondata:Name {value: "request_counts"}
-    BatchRequestCounts requestCounts?;
-    # The ID of the input file for the batch
-    @jsondata:Name {value: "input_file_id"}
-    string inputFileId;
-    # The ID of the file containing the outputs of successfully executed requests
-    @jsondata:Name {value: "output_file_id"}
-    string outputFileId?;
-    # The ID of the file containing the outputs of requests with errors
-    @jsondata:Name {value: "error_file_id"}
-    string errorFileId?;
-    # The Unix timestamp (in seconds) for when the batch was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The Unix timestamp (in seconds) for when the batch started processing
-    @jsondata:Name {value: "in_progress_at"}
-    int inProgressAt?;
-    # The Unix timestamp (in seconds) for when the batch expired
-    @jsondata:Name {value: "expired_at"}
-    int expiredAt?;
-    # The Unix timestamp (in seconds) for when the batch started finalizing
-    @jsondata:Name {value: "finalizing_at"}
-    int finalizingAt?;
-    # The Unix timestamp (in seconds) for when the batch was completed
-    @jsondata:Name {value: "completed_at"}
-    int completedAt?;
-    # The OpenAI API endpoint used by the batch
-    string endpoint;
-    # The Unix timestamp (in seconds) for when the batch will expire
-    @jsondata:Name {value: "expires_at"}
-    int expiresAt?;
-    # The Unix timestamp (in seconds) for when the batch started cancelling
-    @jsondata:Name {value: "cancelling_at"}
-    int cancellingAt?;
-    # The time frame within which the batch should be processed
-    @jsondata:Name {value: "completion_window"}
-    string completionWindow;
-    string id;
-    # The Unix timestamp (in seconds) for when the batch failed
-    @jsondata:Name {value: "failed_at"}
-    int failedAt?;
-    BatchErrors errors?;
-    # The object type, which is always `batch`
-    "batch" 'object;
-    # The current status of the batch
-    "validating"|"failed"|"in_progress"|"finalizing"|"completed"|"expired"|"cancelling"|"cancelled" status;
-};
-
-# The details for events with this `type`
-public type AuditLogInvitesent record {
-    # The payload used to create the invite
-    AuditLogInvitesentData data?;
-    # The ID of the invite
-    string id?;
-};
-
-public type StaticChunkingStrategy record {|
-    # The maximum number of tokens in each chunk. The default value is `800`. The minimum value is `100` and the maximum value is `4096`
-    @jsondata:Name {value: "max_chunk_size_tokens"}
-    int maxChunkSizeTokens;
-    # The number of tokens that overlap between chunks. The default value is `400`.
-    # 
-    # Note that the overlap must not exceed half of `max_chunk_size_tokens`
-    @jsondata:Name {value: "chunk_overlap_tokens"}
-    int chunkOverlapTokens;
-|};
-
-public type AssistantObjectToolResourcesCodeInterpreter record {
-    # A list of [file](/docs/api-reference/files) IDs made available to the `code_interpreter`` tool. There can be a maximum of 20 files associated with the tool
-    @jsondata:Name {value: "file_ids"}
-    string[] fileIds = [];
-};
-
-public type CompleteUploadRequest record {|
-    # The ordered list of Part IDs
-    @jsondata:Name {value: "part_ids"}
-    string[] partIds;
-    # The optional md5 checksum for the file contents to verify if the bytes uploaded matches what you expect
-    string md5?;
-|};
-
-# References an image [File](/docs/api-reference/files) in the content of a message
-public type MessageContentImageFileObject record {
-    @jsondata:Name {value: "image_file"}
-    MessageContentImageFileObjectImageFile imageFile;
-    # Always `image_file`
-    "image_file" 'type;
-};
-
-# Represents an `assistant` that can call the model and use tools
-public type AssistantObject record {
-    # The system instructions that the assistant uses. The maximum length is 256,000 characters
-    string? instructions;
-    @jsondata:Name {value: "tool_resources"}
-    AssistantObjectToolResources? toolResources?;
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata;
-    # The Unix timestamp (in seconds) for when the assistant was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The description of the assistant. The maximum length is 512 characters
-    string? description;
-    # A list of tool enabled on the assistant. There can be a maximum of 128 tools per assistant. Tools can be of types `code_interpreter`, `file_search`, or `function`
-    @constraint:Array {maxLength: 128}
-    AssistantObjectTools[] tools = [];
-    # An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    # 
-    # We generally recommend altering this or temperature but not both
-    @jsondata:Name {value: "top_p"}
-    decimal? topp = 1;
-    @jsondata:Name {value: "response_format"}
-    AssistantsApiResponseFormatOption responseFormat?;
-    # The name of the assistant. The maximum length is 256 characters
-    string? name;
-    # What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic
-    decimal? temperature = 1;
-    # ID of the model to use. You can use the [List models](/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](/docs/models) for descriptions of them
-    string model;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    # The object type, which is always `assistant`
-    "assistant" 'object;
-};
-
-public type EffectiveAt record {
-    # Return only events whose `effective_at` (Unix seconds) is less than this value
-    int lt?;
-    # Return only events whose `effective_at` (Unix seconds) is greater than or equal to this value
-    int gte?;
-    # Return only events whose `effective_at` (Unix seconds) is less than or equal to this value
-    int lte?;
-    # Return only events whose `effective_at` (Unix seconds) is greater than this value
-    int gt?;
-};
-
-public type ProjectRateLimitUpdateRequest record {
-    # The maximum batch input tokens per day. Only relevant for certain models
-    @jsondata:Name {value: "batch_1_day_max_input_tokens"}
-    int batch1DayMaxInputTokens?;
-    # The maximum tokens per minute
-    @jsondata:Name {value: "max_tokens_per_1_minute"}
-    int maxTokensPer1Minute?;
-    # The maximum images per minute. Only relevant for certain models
-    @jsondata:Name {value: "max_images_per_1_minute"}
-    int maxImagesPer1Minute?;
-    # The maximum audio megabytes per minute. Only relevant for certain models
-    @jsondata:Name {value: "max_audio_megabytes_per_1_minute"}
-    int maxAudioMegabytesPer1Minute?;
-    # The maximum requests per minute
-    @jsondata:Name {value: "max_requests_per_1_minute"}
-    int maxRequestsPer1Minute?;
-    # The maximum requests per day. Only relevant for certain models
-    @jsondata:Name {value: "max_requests_per_1_day"}
-    int maxRequestsPer1Day?;
-};
-
-# The payload used to create the invite
-public type AuditLogInvitesentData record {
-    # The role the email was invited to be. Is either `owner` or `member`
-    string role?;
-    # The email invited to the organization
-    string email?;
-};
+# Content filtering results for zero or more prompts in the request. In a streaming request, results for different prompts may arrive at different times or in different orders
+public type PromptFilterResults PromptFilterResult[];
 
-@deprecated
-public type ChatCompletionRequestFunctionMessage record {
-    # The role of the messages author, in this case `function`
-    "function" role;
-    # The name of the function to call
-    string name;
-    # The contents of the function message
-    string? content;
+public type CreateChatCompletionResponse record {
+    *ChatCompletionsResponseCommon;
+    @jsondata:Name {value: "prompt_filter_results"}
+    PromptFilterResults promptFilterResults?;
+    record {*ChatCompletionChoiceCommon; @jsondata:Name {value: "content_filter_results"}
+        ContentFilterChoiceResults contentFilterResults?; ChatCompletionResponseMessage message?;}[] choices;
 };
 
-public type CreateFileRequest record {|
-    # The File object (not file name) to be uploaded
-    record {byte[] fileContent; string fileName;} file;
-    # The intended purpose of the uploaded file.
-    # 
-    # Use "assistants" for [Assistants](/docs/api-reference/assistants) and [Message](/docs/api-reference/messages) files, "vision" for Assistants image file inputs, "batch" for [Batch API](/docs/guides/batch), and "fine-tune" for [Fine-tuning](/docs/api-reference/fine-tuning)
-    "assistants"|"batch"|"fine-tune"|"vision" purpose;
-|};
+public type Error ErrorBase;
 
 # The function that the model called
 public type ChatCompletionMessageToolCallFunction record {
@@ -2069,860 +586,32 @@ public type ChatCompletionMessageToolCallFunction record {
     string arguments;
 };
 
-# A URL for the file that's generated when the assistant used the `code_interpreter` tool to generate a file
-public type MessageContentTextAnnotationsFilePathObject record {
-    @jsondata:Name {value: "file_path"}
-    MessageContentTextAnnotationsFilePathObjectFilePath filePath;
-    @jsondata:Name {value: "start_index"}
-    int startIndex;
-    @jsondata:Name {value: "end_index"}
-    int endIndex;
-    # The text in the message content that needs to be replaced
-    string text;
-    # Always `file_path`
-    "file_path" 'type;
+# Represents the Queries record for the operation: Transcriptions_Create
+public type TranscriptionsCreateQueries record {
+    # api version
+    @http:Query {name: "api-version"}
+    string apiVersion;
 };
 
-# For now, this is always going to be an empty object
-public type RunStepDetailsToolCallsFileSearchObjectFileSearch record {
-    @jsondata:Name {value: "ranking_options"}
-    RunStepDetailsToolCallsFileSearchRankingOptionsObject rankingOptions?;
-    # The results of the file search
-    RunStepDetailsToolCallsFileSearchResultObject[] results?;
+# Translation or transcription response when response_format was verbose_json
+public type AudioVerboseResponse record {
+    *AudioResponse;
+    # Duration.
+    decimal duration?;
+    # Type of audio task.
+    "transcribe"|"translate" task?;
+    # Language.
+    string language?;
+    AudioSegment[] segments?;
 };
 
-public type CreateThreadAndRunRequest record {|
-    # Override the default system message of the assistant. This is useful for modifying the behavior on a per-run basis
-    string? instructions?;
-    @jsondata:Name {value: "tool_resources"}
-    CreateThreadAndRunRequestToolResources? toolResources?;
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata?;
-    # The ID of the [assistant](/docs/api-reference/assistants) to use to execute this run
-    @jsondata:Name {value: "assistant_id"}
-    string assistantId;
-    CreateThreadRequest thread?;
-    # Override the tools the assistant can use for this run. This is useful for modifying the behavior on a per-run basis
-    CreateThreadAndRunRequestTools[]? tools?;
-    @jsondata:Name {value: "truncation_strategy"}
-    TruncationObject truncationStrategy?;
-    # An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    # 
-    # We generally recommend altering this or temperature but not both
-    @jsondata:Name {value: "top_p"}
-    decimal? topp = 1;
-    # The maximum number of completion tokens that may be used over the course of the run. The run will make a best effort to use only the number of completion tokens specified, across multiple turns of the run. If the run exceeds the number of completion tokens specified, the run will end with status `incomplete`. See `incomplete_details` for more info
-    @jsondata:Name {value: "max_completion_tokens"}
-    int? maxCompletionTokens?;
-    @jsondata:Name {value: "response_format"}
-    AssistantsApiResponseFormatOption responseFormat?;
-    @jsondata:Name {value: "parallel_tool_calls"}
-    ParallelToolCalls parallelToolCalls?;
-    # If `true`, returns a stream of events that happen during the Run as server-sent events, terminating when the Run enters a terminal state with a `data: [DONE]` message
-    boolean? 'stream?;
-    # What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic
-    decimal? temperature = 1;
-    @jsondata:Name {value: "tool_choice"}
-    AssistantsApiToolChoiceOption toolChoice?;
-    # The ID of the [Model](/docs/api-reference/models) to be used to execute this run. If a value is provided here, it will override the model associated with the assistant. If not, the model associated with the assistant will be used
-    string|"gpt-4o"|"gpt-4o-2024-11-20"|"gpt-4o-2024-08-06"|"gpt-4o-2024-05-13"|"gpt-4o-mini"|"gpt-4o-mini-2024-07-18"|"gpt-4-turbo"|"gpt-4-turbo-2024-04-09"|"gpt-4-0125-preview"|"gpt-4-turbo-preview"|"gpt-4-1106-preview"|"gpt-4-vision-preview"|"gpt-4"|"gpt-4-0314"|"gpt-4-0613"|"gpt-4-32k"|"gpt-4-32k-0314"|"gpt-4-32k-0613"|"gpt-3.5-turbo"|"gpt-3.5-turbo-16k"|"gpt-3.5-turbo-0613"|"gpt-3.5-turbo-1106"|"gpt-3.5-turbo-0125"|"gpt-3.5-turbo-16k-0613"? model?;
-    # The maximum number of prompt tokens that may be used over the course of the run. The run will make a best effort to use only the number of prompt tokens specified, across multiple turns of the run. If the run exceeds the number of prompt tokens specified, the run will end with status `incomplete`. See `incomplete_details` for more info
-    @jsondata:Name {value: "max_prompt_tokens"}
-    int? maxPromptTokens?;
-|};
-
-# Fine-tuning job event object
-public type FineTuningJobEvent record {
-    "info"|"warn"|"error" level;
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    string id;
-    string message;
-    "fine_tuning.job.event" 'object;
-};
-
-# The payload used to update the organization settings
-public type AuditLogOrganizationupdatedChangesRequested record {
-    AuditLogOrganizationupdatedChangesRequestedSettings settings?;
-    # The organization name
-    string name?;
-    # The organization description
-    string description?;
-    # The organization title
-    string title?;
-};
-
-# Specifies a tool the model should use. Use to force the model to call a specific tool
-public type AssistantsNamedToolChoice record {
-    AssistantsNamedToolChoiceFunction 'function?;
-    # The type of the tool. If type is `function`, the function name must be set
-    "function"|"code_interpreter"|"file_search" 'type;
-};
-
-public type ListRunStepsResponse record {
-    string 'object;
-    RunStepObject[] data;
-    string first_id;
-    string last_id;
-    boolean has_more;
-};
-
-# The service account that performed the audit logged action
-public type AuditLogActorServiceAccount record {
-    # The service account id
-    string id?;
-};
-
-# Represents a message within a [thread](/docs/api-reference/threads)
-public type MessageObject record {
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata;
-    # The entity that produced the message. One of `user` or `assistant`
-    "user"|"assistant" role;
-    # If applicable, the ID of the [assistant](/docs/api-reference/assistants) that authored this message
-    @jsondata:Name {value: "assistant_id"}
-    string? assistantId;
-    # The ID of the [run](/docs/api-reference/runs) associated with the creation of this message. Value is `null` when messages are created manually using the create message or create thread endpoints
-    @jsondata:Name {value: "run_id"}
-    string? runId;
-    # A list of files attached to the message, and the tools they were added to
-    CreateMessageRequestAttachments[]? attachments;
-    # The Unix timestamp (in seconds) for when the message was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The content of the message in array of text and/or images
-    MessageObjectContent[] content;
-    # The Unix timestamp (in seconds) for when the message was completed
-    @jsondata:Name {value: "completed_at"}
-    int? completedAt;
-    # The [thread](/docs/api-reference/threads) ID that this message belongs to
-    @jsondata:Name {value: "thread_id"}
-    string threadId;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    # The Unix timestamp (in seconds) for when the message was marked as incomplete
-    @jsondata:Name {value: "incomplete_at"}
-    int? incompleteAt;
-    @jsondata:Name {value: "incomplete_details"}
-    MessageObjectIncompleteDetails? incompleteDetails;
-    # The object type, which is always `thread.message`
-    "thread.message" 'object;
-    # The status of the message, which can be either `in_progress`, `incomplete`, or `completed`
-    "in_progress"|"incomplete"|"completed" status;
-};
-
-public type ProjectUserDeleteResponse record {
-    boolean deleted;
-    string id;
-    "organization.project.user.deleted" 'object;
-};
-
-public type ChatCompletionRequestMessageContentPartAudioInputAudio record {
-    # Base64 encoded audio data
-    string data;
-    # The format of the encoded audio data. Currently supports "wav" and "mp3"
-    "wav"|"mp3" format;
-};
-
-# Represents the Queries record for the operation: list-users
-public type ListUsersQueries record {
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-};
-
-public type CreateFineTuningJobRequest record {
-    # The ID of an uploaded file that contains training data.
-    # 
-    # See [upload file](/docs/api-reference/files/create) for how to upload a file.
-    # 
-    # Your dataset must be formatted as a JSONL file. Additionally, you must upload your file with the purpose `fine-tune`.
-    # 
-    # The contents of the file should differ depending on if the model uses the [chat](/docs/api-reference/fine-tuning/chat-input) or [completions](/docs/api-reference/fine-tuning/completions-input) format.
-    # 
-    # See the [fine-tuning guide](/docs/guides/fine-tuning) for more details
-    @jsondata:Name {value: "training_file"}
-    string trainingFile;
-    # The seed controls the reproducibility of the job. Passing in the same seed and job parameters should produce the same results, but may differ in rare cases.
-    # If a seed is not specified, one will be generated for you
-    int? seed?;
-    # The ID of an uploaded file that contains validation data.
-    # 
-    # If you provide this file, the data is used to generate validation
-    # metrics periodically during fine-tuning. These metrics can be viewed in
-    # the fine-tuning results file.
-    # The same data should not be present in both train and validation files.
-    # 
-    # Your dataset must be formatted as a JSONL file. You must upload your file with the purpose `fine-tune`.
-    # 
-    # See the [fine-tuning guide](/docs/guides/fine-tuning) for more details
-    @jsondata:Name {value: "validation_file"}
-    string? validationFile?;
-    # The hyperparameters used for the fine-tuning job
-    CreateFineTuningJobRequestHyperparameters hyperparameters?;
-    # The name of the model to fine-tune. You can select one of the
-    # [supported models](/docs/guides/fine-tuning#which-models-can-be-fine-tuned)
-    string|"babbage-002"|"davinci-002"|"gpt-3.5-turbo"|"gpt-4o-mini" model;
-    # A string of up to 64 characters that will be added to your fine-tuned model name.
-    # 
-    # For example, a `suffix` of "custom-model-name" would produce a model name like `ft:gpt-4o-mini:openai:custom-model-name:7p4lURel`
-    string? suffix?;
-    # A list of integrations to enable for your fine-tuning job
-    CreateFineTuningJobRequestIntegrations[]? integrations?;
-};
-
-# The session in which the audit logged action was performed
-public type AuditLogActorSession record {
-    # The IP address from which the action was performed
-    @jsondata:Name {value: "ip_address"}
-    string ipAddress?;
-    # The user who performed the audit logged action
-    AuditLogActorUser user?;
-};
-
-# Represents an individual user in a project
-public type ProjectUser record {
-    # The Unix timestamp (in seconds) of when the project was added
-    @jsondata:Name {value: "added_at"}
-    int addedAt;
-    # `owner` or `member`
-    "owner"|"member" role;
-    # The name of the user
-    string name;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    # The email address of the user
-    string email;
-    # The object type, which is always `organization.project.user`
-    "organization.project.user" 'object;
-};
-
-public type MessageContentImageUrlObjectImageUrl record {
-    # Specifies the detail level of the image. `low` uses fewer tokens, you can opt in to high resolution using `high`. Default value is `auto`
-    "auto"|"low"|"high" detail = "auto";
-    # The external URL of the image, must be a supported image types: jpeg, jpg, png, gif, webp
-    string url;
-};
-
-# Represents the Queries record for the operation: createRun
-public type CreateRunQueries record {
-    # A list of additional fields to include in the response. Currently the only supported value is `step_details.tool_calls[*].file_search.results[*].content` to fetch the file search result content.
-    # 
-    # See the [file search tool documentation](/docs/assistants/tools/file-search#customizing-file-search-settings) for more information
-    @http:Query {name: "include[]"}
-    ("step_details.tool_calls[*].file_search.results[*].content")[] include?;
-};
-
-# The aggregated moderations usage details of the specific time bucket
-public type UsageModerationsResult record {
-    # The count of requests made to the model
-    @jsondata:Name {value: "num_model_requests"}
-    int numModelRequests;
-    # When `group_by=project_id`, this field provides the project ID of the grouped usage result
-    @jsondata:Name {value: "project_id"}
-    string? projectId?;
-    # When `group_by=user_id`, this field provides the user ID of the grouped usage result
-    @jsondata:Name {value: "user_id"}
-    string? userId?;
-    # When `group_by=model`, this field provides the model name of the grouped usage result
-    string? model?;
-    # The aggregated number of input tokens used
-    @jsondata:Name {value: "input_tokens"}
-    int inputTokens;
-    # When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result
-    @jsondata:Name {value: "api_key_id"}
-    string? apiKeyId?;
-    "organization.usage.moderations.result" 'object;
-};
-
-# Static predicted output content, such as the content of a text file that is
-# being regenerated
-public type PredictionContent record {
-    # The type of the predicted content you want to provide. This type is
-    # currently always `content`
-    "content" 'type;
-    # The content that should be matched when generating a model response.
-    # If generated tokens would match this content, the entire model response
-    # can be returned much more quickly
-    string|ChatCompletionRequestMessageContentPartText[] content;
-};
-
-public type CreateFineTuningJobRequestIntegrations record {
-    # The settings for your integration with Weights and Biases. This payload specifies the project that
-    # metrics will be sent to. Optionally, you can set an explicit display name for your run, add tags
-    # to your run, and set a default entity (team, username, etc) to be associated with your run
-    CreateFineTuningJobRequestWandb wandb;
-    # The type of integration to enable. Currently, only "wandb" (Weights and Biases) is supported
-    "wandb" 'type;
-};
-
-public type ChatCompletionTokenLogprob record {
-    # List of the most likely tokens and their log probability, at this token position. In rare cases, there may be fewer than the number of requested `top_logprobs` returned
-    @jsondata:Name {value: "top_logprobs"}
-    ChatCompletionTokenLogprobTopLogprobs[] topLogprobs;
-    # The log probability of this token, if it is within the top 20 most likely tokens. Otherwise, the value `-9999.0` is used to signify that the token is very unlikely
-    decimal logprob;
-    # A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token
-    int[]? bytes;
-    # The token
-    string token;
-};
-
-# `auto` is the default value
-public type AssistantsApiResponseFormatOptionOneOf1 "auto";
-
-public type ChatCompletionRequestMessage ChatCompletionRequestSystemMessage|ChatCompletionRequestUserMessage|ChatCompletionRequestAssistantMessage|ChatCompletionRequestToolMessage|ChatCompletionRequestFunctionMessage;
-
-# Represents the url or the content of an image generated by the OpenAI API
-public type Image record {
-    # The prompt that was used to generate the image, if there was any revision to the prompt
-    @jsondata:Name {value: "revised_prompt"}
-    string revisedPrompt?;
-    # The base64-encoded JSON of the generated image, if `response_format` is `b64_json`
-    @jsondata:Name {value: "b64_json"}
-    string b64Json?;
-    # The URL of the generated image, if `response_format` is `url` (default)
-    string url?;
-};
-
-# Represents a project rate limit config
-public type ProjectRateLimit record {
-    # The maximum batch input tokens per day. Only present for relevant models
-    @jsondata:Name {value: "batch_1_day_max_input_tokens"}
-    int batch1DayMaxInputTokens?;
-    # The maximum tokens per minute
-    @jsondata:Name {value: "max_tokens_per_1_minute"}
-    int maxTokensPer1Minute;
-    # The model this rate limit applies to
-    string model;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    # The maximum images per minute. Only present for relevant models
-    @jsondata:Name {value: "max_images_per_1_minute"}
-    int maxImagesPer1Minute?;
-    # The maximum audio megabytes per minute. Only present for relevant models
-    @jsondata:Name {value: "max_audio_megabytes_per_1_minute"}
-    int maxAudioMegabytesPer1Minute?;
-    # The maximum requests per minute
-    @jsondata:Name {value: "max_requests_per_1_minute"}
-    int maxRequestsPer1Minute;
-    # The object type, which is always `project.rate_limit`
-    "project.rate_limit" 'object;
-    # The maximum requests per day. Only present for relevant models
-    @jsondata:Name {value: "max_requests_per_1_day"}
-    int maxRequestsPer1Day?;
-};
-
-# The details for events with this `type`
-public type AuditLogInviteaccepted record {
-    # The ID of the invite
-    string id?;
-};
-
-# The hyperparameters used for the fine-tuning job
-public type CreateFineTuningJobRequestHyperparameters record {
-    # Number of examples in each batch. A larger batch size means that model parameters
-    # are updated less frequently, but with lower variance
-    @jsondata:Name {value: "batch_size"}
-    "auto"|int batchSize = "auto";
-    # The number of epochs to train the model for. An epoch refers to one full cycle
-    # through the training dataset
-    @jsondata:Name {value: "n_epochs"}
-    "auto"|int nEpochs = "auto";
-    # Scaling factor for the learning rate. A smaller learning rate may be useful to avoid
-    # overfitting
-    @jsondata:Name {value: "learning_rate_multiplier"}
-    "auto"|decimal learningRateMultiplier = "auto";
-};
-
-# The last error associated with this run. Will be `null` if there are no errors
-public type RunObjectLastError record {
-    # One of `server_error`, `rate_limit_exceeded`, or `invalid_prompt`
-    "server_error"|"rate_limit_exceeded"|"invalid_prompt" code;
-    # A human-readable description of the error
-    string message;
-};
-
-# Represents a verbose json transcription response returned by model, based on the provided input
-public type CreateTranscriptionResponseVerboseJson record {
-    # The duration of the input audio
-    string duration;
-    # Extracted words and their corresponding timestamps
-    TranscriptionWord[] words?;
-    # The language of the input audio
-    string language;
-    # The transcribed text
-    string text;
-    # Segments of the transcribed text and their corresponding details
-    TranscriptionSegment[] segments?;
-};
-
-public type ProjectServiceAccountApiKey record {
-    string name;
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    string id;
-    string value;
-    # The object type, which is always `organization.project.service_account.api_key`
-    "organization.project.service_account.api_key" 'object;
-};
-
-public type CreateTranslationRequest record {|
-    # The audio file object (not file name) translate, in one of these formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm
-    record {byte[] fileContent; string fileName;} file;
-    @jsondata:Name {value: "response_format"}
-    AudioResponseFormat responseFormat?;
-    # The sampling temperature, between 0 and 1. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. If set to 0, the model will use [log probability](https://en.wikipedia.org/wiki/Log_probability) to automatically increase the temperature until certain thresholds are hit
-    decimal temperature = 0;
-    # ID of the model to use. Only `whisper-1` (which is powered by our open source Whisper V2 model) is currently available
-    string|"whisper-1" model;
-    # An optional text to guide the model's style or continue a previous audio segment. The [prompt](/docs/guides/speech-to-text#prompting) should be in English
-    string prompt?;
-|};
-
-# The schema for the response format, described as a JSON Schema object
-public type ResponseFormatJsonSchemaSchema record {
-};
-
-public type UpdateVectorStoreRequest record {|
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata?;
-    @jsondata:Name {value: "expires_after"}
-    VectorStoreExpirationAfter expiresAfter?;
-    # The name of the vector store
-    string? name?;
-|};
-
-# Breakdown of tokens used in a completion
-public type CompletionUsageCompletionTokensDetails record {
-    # When using Predicted Outputs, the number of tokens in the
-    # prediction that appeared in the completion
-    @jsondata:Name {value: "accepted_prediction_tokens"}
-    int acceptedPredictionTokens?;
-    # Audio input tokens generated by the model
-    @jsondata:Name {value: "audio_tokens"}
-    int audioTokens?;
-    # Tokens generated by the model for reasoning
-    @jsondata:Name {value: "reasoning_tokens"}
-    int reasoningTokens?;
-    # When using Predicted Outputs, the number of tokens in the
-    # prediction that did not appear in the completion. However, like
-    # reasoning tokens, these tokens are still counted in the total
-    # completion tokens for purposes of billing, output, and context window
-    # limits
-    @jsondata:Name {value: "rejected_prediction_tokens"}
-    int rejectedPredictionTokens?;
-};
-
-# The settings for your integration with Weights and Biases. This payload specifies the project that
-# metrics will be sent to. Optionally, you can set an explicit display name for your run, add tags
-# to your run, and set a default entity (team, username, etc) to be associated with your run
-public type CreateFineTuningJobRequestWandb record {
-    # A display name to set for the run. If not set, we will use the Job ID as the name
-    string? name?;
-    # The name of the project that the new run will be created under
-    string project;
-    # The entity to use for the run. This allows you to set the team or username of the WandB user that you would
-    # like associated with the run. If not set, the default entity for the registered WandB API key is used
-    string? entity?;
-    # A list of tags to be attached to the newly created run. These tags are passed through directly to WandB. Some
-    # default tags are generated by OpenAI: "openai/finetune", "openai/{base-model}", "openai/{ftjob-abcdef}"
-    string[] tags?;
-};
-
-@deprecated
-public type ChatCompletionFunctions record {
+public type ChatCompletionToolFunction record {
     # The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64
     string name;
     # A description of what the function does, used by the model to choose when and how to call the function
     string description?;
-    # The parameters the functions accepts, described as a JSON Schema object. See the [guide](/docs/guides/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format. 
-    # 
-    # Omitting `parameters` defines a function with an empty parameter list
-    FunctionParameters parameters?;
-};
-
-# Represents the Queries record for the operation: list-project-rate-limits
-public type ListProjectRateLimitsQueries record {
-    # A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, beginning with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list
-    string before?;
-    # A limit on the number of objects to be returned. The default is 100
-    int 'limit = 100;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-};
-
-public type UserRoleUpdateRequest record {
-    # `owner` or `reader`
-    "owner"|"reader" role;
-};
-
-public type AddUploadPartRequest record {|
-    # The chunk of bytes for this Part
-    record {byte[] fileContent; string fileName;} data;
-|};
-
-public type AssistantToolsCode record {
-    # The type of tool being defined: `code_interpreter`
-    "code_interpreter" 'type;
-};
-
-# The usage information for the request
-public type CreateEmbeddingResponseUsage record {
-    # The number of tokens used by the prompt
-    @jsondata:Name {value: "prompt_tokens"}
-    int promptTokens;
-    # The total number of tokens used by the request
-    @jsondata:Name {value: "total_tokens"}
-    int totalTokens;
-};
-
-# This is returned when the chunking strategy is unknown. Typically, this is because the file was indexed before the `chunking_strategy` concept was introduced in the API
-public type OtherChunkingStrategyResponseParam record {|
-    # Always `other`
-    "other" 'type;
-|};
-
-# The format of the output, in one of these options: `json`, `text`, `srt`, `verbose_json`, or `vtt`
-public type AudioResponseFormat "json"|"text"|"srt"|"verbose_json"|"vtt";
-
-public type AssistantObjectToolResourcesFileSearch record {
-    # The ID of the [vector store](/docs/api-reference/vector-stores/object) attached to this assistant. There can be a maximum of 1 vector store attached to the assistant
-    @jsondata:Name {value: "vector_store_ids"}
-    string[] vectorStoreIds?;
-};
-
-public type BatchesBody record {
-    # The endpoint to be used for all requests in the batch. Currently `/v1/chat/completions`, `/v1/embeddings`, and `/v1/completions` are supported. Note that `/v1/embeddings` batches are also restricted to a maximum of 50,000 embedding inputs across all requests in the batch
-    "/v1/chat/completions"|"/v1/embeddings"|"/v1/completions" endpoint;
-    # Optional custom metadata for the batch
-    record {|string...;|}? metadata?;
-    # The ID of an uploaded file that contains requests for the new batch.
-    # 
-    # See [upload file](/docs/api-reference/files/create) for how to upload a file.
-    # 
-    # Your input file must be formatted as a [JSONL file](/docs/api-reference/batch/request-input), and must be uploaded with the purpose `batch`. The file can contain up to 50,000 requests, and can be up to 200 MB in size
-    @jsondata:Name {value: "input_file_id"}
-    string inputFileId;
-    # The time frame within which the batch should be processed. Currently only `24h` is supported
-    @jsondata:Name {value: "completion_window"}
-    "24h" completionWindow;
-};
-
-# Learn about [image inputs](/docs/guides/vision)
-public type ChatCompletionRequestMessageContentPartImage record {
-    @jsondata:Name {value: "image_url"}
-    ChatCompletionRequestMessageContentPartImageImageUrl imageUrl;
-    # The type of the content part
-    "image_url" 'type;
-};
-
-# The user who performed the audit logged action
-public type AuditLogActorUser record {
-    # The user id
-    string id?;
-    # The user email
-    string email?;
-};
-
-# A set of resources that are made available to the assistant's tools in this thread. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs
-public type ModifyThreadRequestToolResources record {
-    @jsondata:Name {value: "code_interpreter"}
-    CreateAssistantRequestToolResourcesCodeInterpreter codeInterpreter?;
-    @jsondata:Name {value: "file_search"}
-    ModifyThreadRequestToolResourcesFileSearch fileSearch?;
-};
-
-public type CreateVectorStoreFileBatchRequest record {|
-    @jsondata:Name {value: "chunking_strategy"}
-    ChunkingStrategyRequestParam chunkingStrategy?;
-    # A list of [File](/docs/api-reference/files) IDs that the vector store should use. Useful for tools like `file_search` that can access files
-    @jsondata:Name {value: "file_ids"}
-    string[] fileIds;
-|};
-
-public type ProjectUserUpdateRequest record {
-    # `owner` or `member`
-    "owner"|"member" role;
-};
-
-# The Code Interpreter tool call definition
-public type RunStepDetailsToolCallsCodeObjectCodeInterpreter record {
-    # The outputs from the Code Interpreter tool call. Code Interpreter can output one or more items, including text (`logs`) or images (`image`). Each of these are represented by a different object type
-    RunStepDetailsToolCallsCodeObjectCodeInterpreterOutputs[] outputs;
-    # The input to the Code Interpreter tool call
-    string input;
-};
-
-public type CreateThreadRequest record {|
-    @jsondata:Name {value: "tool_resources"}
-    CreateThreadRequestToolResources? toolResources?;
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata?;
-    # A list of [messages](/docs/api-reference/messages) to start the thread with
-    CreateMessageRequest[] messages?;
-|};
-
-public type ModifyAssistantRequestToolResourcesFileSearch record {
-    # Overrides the [vector store](/docs/api-reference/vector-stores/object) attached to this assistant. There can be a maximum of 1 vector store attached to the assistant
-    @jsondata:Name {value: "vector_store_ids"}
-    string[] vectorStoreIds?;
-};
-
-# On an incomplete message, details about why the message is incomplete
-public type MessageObjectIncompleteDetails record {
-    # The reason the message is incomplete
-    "content_filter"|"max_tokens"|"run_cancelled"|"run_expired"|"run_failed" reason;
-};
-
-public type StaticChunkingStrategyRequestParam record {|
-    StaticChunkingStrategy static;
-    # Always `static`
-    "static" 'type;
-|};
-
-# A list of files attached to a vector store
-public type VectorStoreFileObject record {
-    # The strategy used to chunk the file
-    @jsondata:Name {value: "chunking_strategy"}
-    StaticChunkingStrategyResponseParam|OtherChunkingStrategyResponseParam chunkingStrategy?;
-    # The total vector store usage in bytes. Note that this may be different from the original file size
-    @jsondata:Name {value: "usage_bytes"}
-    int usageBytes;
-    # The Unix timestamp (in seconds) for when the vector store file was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    @jsondata:Name {value: "last_error"}
-    VectorStoreFileObjectLastError? lastError;
-    # The object type, which is always `vector_store.file`
-    "vector_store.file" 'object;
-    # The ID of the [vector store](/docs/api-reference/vector-stores/object) that the [File](/docs/api-reference/files) is attached to
-    @jsondata:Name {value: "vector_store_id"}
-    string vectorStoreId;
-    # The status of the vector store file, which can be either `in_progress`, `completed`, `cancelled`, or `failed`. The status `completed` indicates that the vector store file is ready for use
-    "in_progress"|"completed"|"cancelled"|"failed" status;
-};
-
-# If the audio output modality is requested, this object contains data
-# about the audio response from the model. [Learn more](/docs/guides/audio)
-public type ChatCompletionResponseMessageAudio record {
-    # The Unix timestamp (in seconds) for when this audio response will
-    # no longer be accessible on the server for use in multi-turn
-    # conversations
-    @jsondata:Name {value: "expires_at"}
-    int expiresAt;
-    # Transcript of the audio generated by the model
-    string transcript;
-    # Base64 encoded audio bytes generated by the model, in the format
-    # specified in the request
-    string data;
-    # Unique identifier for this audio response
-    string id;
-};
-
-public type CreateThreadRequestToolResourcesFileSearch anydata;
-
-# The Upload object can accept byte chunks in the form of Parts
-public type Upload record {
-    # The name of the file to be uploaded
-    string filename;
-    # The Unix timestamp (in seconds) for when the Upload was created
-    @jsondata:Name {value: "expires_at"}
-    int expiresAt;
-    # The `File` object represents a document that has been uploaded to OpenAI
-    OpenAIFile file?;
-    # The intended purpose of the file. [Please refer here](/docs/api-reference/files/object#files/object-purpose) for acceptable values
-    string purpose;
-    # The intended number of bytes to be uploaded
-    int bytes;
-    # The Unix timestamp (in seconds) for when the Upload was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The Upload unique identifier, which can be referenced in API endpoints
-    string id;
-    # The status of the Upload
-    "pending"|"completed"|"cancelled"|"expired" status;
-    # The object type, which is always "upload"
-    "upload" 'object?;
-};
-
-# The last error associated with this vector store file. Will be `null` if there are no errors
-public type VectorStoreFileObjectLastError record {
-    # One of `server_error` or `rate_limit_exceeded`
-    "server_error"|"unsupported_file"|"invalid_file" code;
-    # A human-readable description of the error
-    string message;
-};
-
-# For fine-tuning jobs that have `failed`, this will contain more information on the cause of the failure
-public type FineTuningJobError record {
-    # A machine-readable error code
-    string code;
-    # The parameter that was invalid, usually `training_file` or `validation_file`. This field will be null if the failure was not parameter-specific
-    string? param;
-    # A human-readable error message
-    string message;
-};
-
-# The aggregated code interpreter sessions usage details of the specific time bucket
-public type UsageCodeInterpreterSessionsResult record {
-    # The number of code interpreter sessions
-    int sessions;
-    # When `group_by=project_id`, this field provides the project ID of the grouped usage result
-    @jsondata:Name {value: "project_id"}
-    string? projectId?;
-    "organization.usage.code_interpreter_sessions.result" 'object;
-};
-
-# The chunking strategy used to chunk the file(s). If not set, will use the `auto` strategy
-public type ChunkingStrategyRequestParam AutoChunkingStrategyRequestParam|StaticChunkingStrategyRequestParam;
-
-# A list of the categories along with their scores as predicted by model
-public type CreateModerationResponseCategoryScores record {
-    # The score for the category 'illicit/violent'
-    @jsondata:Name {value: "illicit/violent"}
-    decimal illicitViolent;
-    # The score for the category 'self-harm/instructions'
-    @jsondata:Name {value: "self-harm/instructions"}
-    decimal selfHarmInstructions;
-    # The score for the category 'harassment'
-    decimal harassment;
-    # The score for the category 'violence/graphic'
-    @jsondata:Name {value: "violence/graphic"}
-    decimal violenceGraphic;
-    # The score for the category 'illicit'
-    decimal illicit;
-    # The score for the category 'self-harm/intent'
-    @jsondata:Name {value: "self-harm/intent"}
-    decimal selfHarmIntent;
-    # The score for the category 'hate/threatening'
-    @jsondata:Name {value: "hate/threatening"}
-    decimal hateThreatening;
-    # The score for the category 'sexual/minors'
-    @jsondata:Name {value: "sexual/minors"}
-    decimal sexualMinors;
-    # The score for the category 'harassment/threatening'
-    @jsondata:Name {value: "harassment/threatening"}
-    decimal harassmentThreatening;
-    # The score for the category 'hate'
-    decimal hate;
-    # The score for the category 'self-harm'
-    @jsondata:Name {value: "self-harm"}
-    decimal selfHarm;
-    # The score for the category 'sexual'
-    decimal sexual;
-    # The score for the category 'violence'
-    decimal violence;
-};
-
-# The aggregated audio speeches usage details of the specific time bucket
-public type UsageAudioSpeechesResult record {
-    # The number of characters processed
-    int characters;
-    # The count of requests made to the model
-    @jsondata:Name {value: "num_model_requests"}
-    int numModelRequests;
-    # When `group_by=project_id`, this field provides the project ID of the grouped usage result
-    @jsondata:Name {value: "project_id"}
-    string? projectId?;
-    # When `group_by=user_id`, this field provides the user ID of the grouped usage result
-    @jsondata:Name {value: "user_id"}
-    string? userId?;
-    # When `group_by=model`, this field provides the model name of the grouped usage result
-    string? model?;
-    # When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result
-    @jsondata:Name {value: "api_key_id"}
-    string? apiKeyId?;
-    "organization.usage.audio_speeches.result" 'object;
-};
-
-public type UsageTimeBucketResult UsageCompletionsResult|UsageEmbeddingsResult|UsageModerationsResult|UsageImagesResult|UsageAudioSpeechesResult|UsageAudioTranscriptionsResult|UsageVectorStoresResult|UsageCodeInterpreterSessionsResult|CostsResult;
-
-# Usage statistics related to the run. This value will be `null` if the run is not in a terminal state (i.e. `in_progress`, `queued`, etc.)
-public type RunCompletionUsage record {
-    # Number of completion tokens used over the course of the run
-    @jsondata:Name {value: "completion_tokens"}
-    int completionTokens;
-    # Number of prompt tokens used over the course of the run
-    @jsondata:Name {value: "prompt_tokens"}
-    int promptTokens;
-    # Total number of tokens used (prompt + completion)
-    @jsondata:Name {value: "total_tokens"}
-    int totalTokens;
-};
-
-# Deprecated and replaced by `tool_calls`. The name and arguments of a function that should be called, as generated by the model
-# 
-# # Deprecated
-@deprecated
-public type ChatCompletionResponseMessageFunctionCall record {
-    # The name of the function to call
-    string name;
-    # The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function
-    string arguments;
-};
-
-# The payload used to create the service account
-public type AuditLogServiceAccountcreatedData record {
-    # The role of the service account. Is either `owner` or `member`
-    string role?;
-};
-
-# References an image URL in the content of a message
-public type MessageContentImageUrlObject record {
-    @jsondata:Name {value: "image_url"}
-    MessageContentImageUrlObjectImageUrl imageUrl;
-    # The type of the content part
-    "image_url" 'type;
-};
-
-public type CreateCompletionResponseChoices record {
-    # The reason the model stopped generating tokens. This will be `stop` if the model hit a natural stop point or a provided stop sequence,
-    # `length` if the maximum number of tokens specified in the request was reached,
-    # or `content_filter` if content was omitted due to a flag from our content filters
-    @jsondata:Name {value: "finish_reason"}
-    "stop"|"length"|"content_filter" finishReason;
-    int index;
-    string text;
-    CreateCompletionResponseLogprobs? logprobs;
-};
-
-public type ImagesResponse record {
-    int created;
-    Image[] data;
-};
-
-public type DeleteModelResponse record {
-    boolean deleted;
-    string id;
-    string 'object;
-};
-
-public type ListAuditLogsResponse record {
-    @jsondata:Name {value: "first_id"}
-    string firstId;
-    AuditLog[] data;
-    @jsondata:Name {value: "last_id"}
-    string lastId;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
-    "list" 'object;
-};
-
-public type ProjectServiceAccountCreateRequest record {
-    # The name of the service account being created
-    string name;
-};
-
-# The monetary value in its associated currency
-public type CostsResultAmount record {
-    # Lowercase ISO-4217 currency e.g. "usd"
-    string currency?;
-    # The numeric value of the cost
-    decimal value?;
+    # The parameters the functions accepts, described as a JSON Schema object. See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format
+    ChatCompletionFunctionParameters parameters;
 };
 
 public type ChatCompletionMessageToolCall record {
@@ -2930,685 +619,17 @@ public type ChatCompletionMessageToolCall record {
     ChatCompletionMessageToolCallFunction 'function;
     # The ID of the tool call
     string id;
-    # The type of the tool. Currently, only `function` is supported
-    "function" 'type;
+    # The type of the tool call, in this case `function`
+    ToolCallType 'type;
 };
 
-public type VectorStoreFileBatchObjectFileCounts record {
-    # The number of files that are currently being processed
-    @jsondata:Name {value: "in_progress"}
-    int inProgress;
-    # The total number of files
-    int total;
-    # The number of files that where cancelled
-    int cancelled;
-    # The number of files that have been processed
-    int completed;
-    # The number of files that have failed to process
-    int failed;
+public type ContentFilterDetectedWithCitationResult record {
+    *ContentFilterDetectedResult;
+    boolean filtered;
+    ContentFilterDetectedWithCitationResult_citation citation?;
 };
 
-public type CreateImageEditRequest record {
-    # The image to edit. Must be a valid PNG file, less than 4MB, and square. If mask is not provided, image must have transparency, which will be used as the mask
-    record {byte[] fileContent; string fileName;} image;
-    # The format in which the generated images are returned. Must be one of `url` or `b64_json`. URLs are only valid for 60 minutes after the image has been generated
-    @jsondata:Name {value: "response_format"}
-    "url"|"b64_json"? responseFormat = "url";
-    # The size of the generated images. Must be one of `256x256`, `512x512`, or `1024x1024`
-    "256x256"|"512x512"|"1024x1024"? size = "1024x1024";
-    # The model to use for image generation. Only `dall-e-2` is supported at this time
-    string|"dall-e-2"? model = "dall-e-2";
-    # A text description of the desired image(s). The maximum length is 1000 characters
-    string prompt;
-    # A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](/docs/guides/safety-best-practices#end-user-ids)
-    string user?;
-    # The number of images to generate. Must be between 1 and 10
-    int? n = 1;
-    # An additional image whose fully transparent areas (e.g. where alpha is zero) indicate where `image` should be edited. Must be a valid PNG file, less than 4MB, and have the same dimensions as `image`
-    record {byte[] fileContent; string fileName;} mask?;
-};
-
-# Overrides for the file search tool
-public type AssistantToolsFileSearchFileSearch record {
-    # The maximum number of results the file search tool should output. The default is 20 for `gpt-4*` models and 5 for `gpt-3.5-turbo`. This number should be between 1 and 50 inclusive.
-    # 
-    # Note that the file search tool may output fewer than `max_num_results` results. See the [file search tool documentation](/docs/assistants/tools/file-search#customizing-file-search-settings) for more information
-    @jsondata:Name {value: "max_num_results"}
-    int maxNumResults?;
-    @jsondata:Name {value: "ranking_options"}
-    FileSearchRankingOptions rankingOptions?;
-};
-
-public type ListModelsResponse record {
-    Model[] data;
-    "list" 'object;
-};
-
-public type AssistantObjectTools AssistantToolsCode|AssistantToolsFileSearch|AssistantToolsFunction;
-
-public type UserDeleteResponse record {
-    boolean deleted;
-    string id;
-    "organization.user.deleted" 'object;
-};
-
-# Describes an OpenAI model offering that can be used with the API
-public type Model record {
-    # The model identifier, which can be referenced in the API endpoints.
-    string id;
-    # The Unix timestamp (in seconds) when the model was created.
-    int created;
-    # The object type, which is always "model".
-    "model" 'object;
-    # The organization that owns the model.
-    string owned_by;
-};
-
-public type ListFilesResponse record {
-    @jsondata:Name {value: "first_id"}
-    string firstId;
-    OpenAIFile[] data;
-    @jsondata:Name {value: "last_id"}
-    string lastId;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
-    string 'object;
-};
-
-public type UserListResponse record {
-    @jsondata:Name {value: "first_id"}
-    string firstId;
-    User[] data;
-    @jsondata:Name {value: "last_id"}
-    string lastId;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
-    "list" 'object;
-};
-
-public type CreateVectorStoreRequest record {|
-    # The chunking strategy used to chunk the file(s). If not set, will use the `auto` strategy. Only applicable if `file_ids` is non-empty
-    @jsondata:Name {value: "chunking_strategy"}
-    AutoChunkingStrategyRequestParam|StaticChunkingStrategyRequestParam chunkingStrategy?;
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata?;
-    @jsondata:Name {value: "expires_after"}
-    VectorStoreExpirationAfter expiresAfter?;
-    # A list of [File](/docs/api-reference/files) IDs that the vector store should use. Useful for tools like `file_search` that can access files
-    @jsondata:Name {value: "file_ids"}
-    string[] fileIds?;
-    # The name of the vector store
-    string name?;
-|};
-
-# The details for events with this `type`
-public type AuditLogUseradded record {
-    # The payload used to add the user to the project
-    AuditLogUseraddedData data?;
-    # The user ID
-    string id?;
-};
-
-public type ProjectApiKeyDeleteResponse record {
-    boolean deleted;
-    string id;
-    "organization.project.api_key.deleted" 'object;
-};
-
-public type CreateChatCompletionResponseChoices record {
-    # The reason the model stopped generating tokens. This will be `stop` if the model hit a natural stop point or a provided stop sequence,
-    # `length` if the maximum number of tokens specified in the request was reached,
-    # `content_filter` if content was omitted due to a flag from our content filters,
-    # `tool_calls` if the model called a tool, or `function_call` (deprecated) if the model called a function
-    @jsondata:Name {value: "finish_reason"}
-    "stop"|"length"|"tool_calls"|"content_filter"|"function_call" finishReason;
-    # The index of the choice in the list of choices
-    int index;
-    # A chat completion message generated by the model
-    ChatCompletionResponseMessage message;
-    # Log probability information for the choice
-    CreateChatCompletionResponseLogprobs? logprobs;
-};
-
-# The details for events with this `type`
-public type AuditLogServiceAccountcreated record {
-    # The payload used to create the service account
-    AuditLogServiceAccountcreatedData data?;
-    # The service account ID
-    string id?;
-};
-
-# Represents a thread that contains [messages](/docs/api-reference/messages)
-public type ThreadObject record {
-    @jsondata:Name {value: "tool_resources"}
-    ModifyThreadRequestToolResources? toolResources;
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata;
-    # The Unix timestamp (in seconds) for when the thread was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    # The object type, which is always `thread`
-    "thread" 'object;
-};
-
-# Options for streaming response. Only set this when you set `stream: true`
-public type ChatCompletionStreamOptions record {
-    # If set, an additional chunk will be streamed before the `data: [DONE]` message. The `usage` field on this chunk shows the token usage statistics for the entire request, and the `choices` field will always be an empty array. All other chunks will also include a `usage` field, but with a null value
-    @jsondata:Name {value: "include_usage"}
-    boolean includeUsage?;
-};
-
-# A citation within the message that points to a specific quote from a specific File associated with the assistant or the message. Generated when the assistant uses the "file_search" tool to search files
-public type MessageContentTextAnnotationsFileCitationObject record {
-    @jsondata:Name {value: "start_index"}
-    int startIndex;
-    @jsondata:Name {value: "file_citation"}
-    MessageContentTextAnnotationsFileCitationObjectFileCitation fileCitation;
-    @jsondata:Name {value: "end_index"}
-    int endIndex;
-    # The text in the message content that needs to be replaced
-    string text;
-    # Always `file_citation`
-    "file_citation" 'type;
-};
-
-public type ListPaginatedFineTuningJobsResponse record {
-    FineTuningJob[] data;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
-    "list" 'object;
-};
-
-public type ModifyAssistantRequest record {|
-    # An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    # 
-    # We generally recommend altering this or temperature but not both
-    @jsondata:Name {value: "top_p"}
-    decimal? topp = 1;
-    # The system instructions that the assistant uses. The maximum length is 256,000 characters
-    string? instructions?;
-    @jsondata:Name {value: "tool_resources"}
-    ModifyAssistantRequestToolResources? toolResources?;
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata?;
-    @jsondata:Name {value: "response_format"}
-    AssistantsApiResponseFormatOption responseFormat?;
-    # The name of the assistant. The maximum length is 256 characters
-    string? name?;
-    # What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic
-    decimal? temperature = 1;
-    # The description of the assistant. The maximum length is 512 characters
-    string? description?;
-    # ID of the model to use. You can use the [List models](/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](/docs/models) for descriptions of them
-    string model?;
-    # A list of tool enabled on the assistant. There can be a maximum of 128 tools per assistant. Tools can be of types `code_interpreter`, `file_search`, or `function`
-    @constraint:Array {maxLength: 128}
-    AssistantObjectTools[] tools = [];
-|};
-
-# Metrics at the step number during the fine-tuning job
-public type FineTuningJobCheckpointMetrics record {
-    @jsondata:Name {value: "full_valid_mean_token_accuracy"}
-    decimal fullValidMeanTokenAccuracy?;
-    @jsondata:Name {value: "valid_loss"}
-    decimal validLoss?;
-    @jsondata:Name {value: "full_valid_loss"}
-    decimal fullValidLoss?;
-    @jsondata:Name {value: "train_mean_token_accuracy"}
-    decimal trainMeanTokenAccuracy?;
-    @jsondata:Name {value: "valid_mean_token_accuracy"}
-    decimal validMeanTokenAccuracy?;
-    @jsondata:Name {value: "train_loss"}
-    decimal trainLoss?;
-    decimal step?;
-};
-
-# A log of a user action or configuration change within this organization
-public type AuditLog record {
-    @jsondata:Name {value: "rate_limit.updated"}
-    AuditLogRateLimitupdated rateLimitUpdated?;
-    @jsondata:Name {value: "user.updated"}
-    AuditLogUserupdated userUpdated?;
-    # The project that the action was scoped to. Absent for actions not scoped to projects
-    AuditLogProject project?;
-    @jsondata:Name {value: "service_account.deleted"}
-    AuditLogServiceAccountdeleted serviceAccountDeleted?;
-    # The event type
-    AuditLogEventType 'type;
-    @jsondata:Name {value: "logout.failed"}
-    AuditLogLoginfailed logoutFailed?;
-    @jsondata:Name {value: "login.failed"}
-    AuditLogLoginfailed loginFailed?;
-    @jsondata:Name {value: "service_account.updated"}
-    AuditLogServiceAccountupdated serviceAccountUpdated?;
-    @jsondata:Name {value: "rate_limit.deleted"}
-    AuditLogRateLimitdeleted rateLimitDeleted?;
-    # The ID of this log
-    string id;
-    @jsondata:Name {value: "project.created"}
-    AuditLogProjectcreated projectCreated?;
-    @jsondata:Name {value: "organization.updated"}
-    AuditLogOrganizationupdated organizationUpdated?;
-    @jsondata:Name {value: "project.updated"}
-    AuditLogProjectupdated projectUpdated?;
-    @jsondata:Name {value: "project.archived"}
-    AuditLogProjectarchived projectArchived?;
-    @jsondata:Name {value: "user.added"}
-    AuditLogUseradded userAdded?;
-    @jsondata:Name {value: "invite.accepted"}
-    AuditLogInviteaccepted inviteAccepted?;
-    @jsondata:Name {value: "invite.deleted"}
-    AuditLogInviteaccepted inviteDeleted?;
-    # The actor who performed the audit logged action
-    AuditLogActor actor;
-    # The Unix timestamp (in seconds) of the event
-    @jsondata:Name {value: "effective_at"}
-    int effectiveAt;
-    @jsondata:Name {value: "invite.sent"}
-    AuditLogInvitesent inviteSent?;
-    @jsondata:Name {value: "service_account.created"}
-    AuditLogServiceAccountcreated serviceAccountCreated?;
-    @jsondata:Name {value: "api_key.created"}
-    AuditLogApiKeycreated apiKeyCreated?;
-    @jsondata:Name {value: "user.deleted"}
-    AuditLogUserdeleted userDeleted?;
-    @jsondata:Name {value: "api_key.deleted"}
-    AuditLogApiKeydeleted apiKeyDeleted?;
-    @jsondata:Name {value: "api_key.updated"}
-    AuditLogApiKeyupdated apiKeyUpdated?;
-};
-
-public type MessageContentTextObjectTextAnnotations MessageContentTextAnnotationsFileCitationObject|MessageContentTextAnnotationsFilePathObject;
-
-public type ChatCompletionRequestUserMessageContentPart ChatCompletionRequestMessageContentPartText|ChatCompletionRequestMessageContentPartImage|ChatCompletionRequestMessageContentPartAudio;
-
-public type ProjectApiKeyListResponse record {
-    @jsondata:Name {value: "first_id"}
-    string firstId;
-    ProjectApiKey[] data;
-    @jsondata:Name {value: "last_id"}
-    string lastId;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
-    "list" 'object;
-};
-
-# Represents the Queries record for the operation: usage-audio-speeches
-public type UsageAudioSpeechesQueries record {
-    # Start time (Unix seconds) of the query time range, inclusive
-    @http:Query {name: "start_time"}
-    int startTime;
-    # Return only usage for these models
-    string[] models?;
-    # Return only usage for these users
-    @http:Query {name: "user_ids"}
-    string[] userIds?;
-    # Return only usage for these API keys
-    @http:Query {name: "api_key_ids"}
-    string[] apiKeyIds?;
-    # End time (Unix seconds) of the query time range, exclusive
-    @http:Query {name: "end_time"}
-    int endTime?;
-    # Specifies the number of buckets to return.
-    # - `bucket_width=1d`: default: 7, max: 31
-    # - `bucket_width=1h`: default: 24, max: 168
-    # - `bucket_width=1m`: default: 60, max: 1440
-    int 'limit?;
-    # Group the usage data by the specified fields. Support fields include `project_id`, `user_id`, `api_key_id`, `model` or any combination of them
-    @http:Query {name: "group_by"}
-    ("project_id"|"user_id"|"api_key_id"|"model")[] groupBy?;
-    # A cursor for use in pagination. Corresponding to the `next_page` field from the previous response
-    string page?;
-    # Width of each time bucket in response. Currently `1m`, `1h` and `1d` are supported, default to `1d`
-    @http:Query {name: "bucket_width"}
-    "1m"|"1h"|"1d" bucketWidth = "1d";
-    # Return only usage for these projects
-    @http:Query {name: "project_ids"}
-    string[] projectIds?;
-};
-
-public type ChatCompletionRequestSystemMessageContentPart ChatCompletionRequestMessageContentPartText;
-
-public type ChatCompletionRequestAssistantMessage record {
-    # The role of the messages author, in this case `assistant`
-    "assistant" role;
-    @jsondata:Name {value: "function_call"}
-    ChatCompletionRequestAssistantMessageFunctionCall? functionCall?;
-    # The refusal message by the assistant
-    string? refusal?;
-    # An optional name for the participant. Provides the model information to differentiate between participants of the same role
-    string name?;
-    @jsondata:Name {value: "tool_calls"}
-    ChatCompletionMessageToolCalls toolCalls?;
-    # Data about a previous audio response from the model. 
-    # [Learn more](/docs/guides/audio)
-    ChatCompletionRequestAssistantMessageAudio? audio?;
-    # The contents of the assistant message. Required unless `tool_calls` or `function_call` is specified
-    string|ChatCompletionRequestAssistantMessageContentPart[]? content?;
-};
-
-# Represents the Queries record for the operation: usage-embeddings
-public type UsageEmbeddingsQueries record {
-    # Start time (Unix seconds) of the query time range, inclusive
-    @http:Query {name: "start_time"}
-    int startTime;
-    # Return only usage for these models
-    string[] models?;
-    # Return only usage for these users
-    @http:Query {name: "user_ids"}
-    string[] userIds?;
-    # Return only usage for these API keys
-    @http:Query {name: "api_key_ids"}
-    string[] apiKeyIds?;
-    # End time (Unix seconds) of the query time range, exclusive
-    @http:Query {name: "end_time"}
-    int endTime?;
-    # Specifies the number of buckets to return.
-    # - `bucket_width=1d`: default: 7, max: 31
-    # - `bucket_width=1h`: default: 24, max: 168
-    # - `bucket_width=1m`: default: 60, max: 1440
-    int 'limit?;
-    # Group the usage data by the specified fields. Support fields include `project_id`, `user_id`, `api_key_id`, `model` or any combination of them
-    @http:Query {name: "group_by"}
-    ("project_id"|"user_id"|"api_key_id"|"model")[] groupBy?;
-    # A cursor for use in pagination. Corresponding to the `next_page` field from the previous response
-    string page?;
-    # Width of each time bucket in response. Currently `1m`, `1h` and `1d` are supported, default to `1d`
-    @http:Query {name: "bucket_width"}
-    "1m"|"1h"|"1d" bucketWidth = "1d";
-    # Return only usage for these projects
-    @http:Query {name: "project_ids"}
-    string[] projectIds?;
-};
-
-# The last error associated with this run step. Will be `null` if there are no errors
-public type RunStepObjectLastError record {
-    # One of `server_error` or `rate_limit_exceeded`
-    "server_error"|"rate_limit_exceeded" code;
-    # A human-readable description of the error
-    string message;
-};
-
-public type ListVectorStoresResponse record {
-    string 'object;
-    VectorStoreObject[] data;
-    string first_id;
-    string last_id;
-    boolean has_more;
-};
-
-# Details of the Code Interpreter tool call the run step was involved in
-public type RunStepDetailsToolCallsCodeObject record {
-    @jsondata:Name {value: "code_interpreter"}
-    RunStepDetailsToolCallsCodeObjectCodeInterpreter codeInterpreter;
-    # The ID of the tool call
-    string id;
-    # The type of tool call. This is always going to be `code_interpreter` for this type of tool call
-    "code_interpreter" 'type;
-};
-
-public type ChatCompletionRequestToolMessageContentPart ChatCompletionRequestMessageContentPartText;
-
-# Represents if a given text input is potentially harmful
-public type CreateModerationResponse record {
-    # The model used to generate the moderation results
-    string model;
-    # The unique identifier for the moderation request
-    string id;
-    # A list of moderation objects
-    CreateModerationResponseResults[] results;
-};
-
-# The payload used to update the API key
-public type AuditLogApiKeyupdatedChangesRequested record {
-    # A list of scopes allowed for the API key, e.g. `["api.model.request"]`
-    string[] scopes?;
-};
-
-public type FineTuningIntegration record {
-    # The settings for your integration with Weights and Biases. This payload specifies the project that
-    # metrics will be sent to. Optionally, you can set an explicit display name for your run, add tags
-    # to your run, and set a default entity (team, username, etc) to be associated with your run
-    CreateFineTuningJobRequestWandb wandb;
-    # The type of the integration being enabled for the fine-tuning job
-    "wandb" 'type;
-};
-
-public type SubmitToolOutputsRunRequest record {|
-    # If `true`, returns a stream of events that happen during the Run as server-sent events, terminating when the Run enters a terminal state with a `data: [DONE]` message
-    boolean? 'stream?;
-    # A list of tools for which the outputs are being submitted
-    @jsondata:Name {value: "tool_outputs"}
-    SubmitToolOutputsRunRequestToolOutputs[] toolOutputs;
-|};
-
-# Represents the Queries record for the operation: usage-images
-public type UsageImagesQueries record {
-    # Start time (Unix seconds) of the query time range, inclusive
-    @http:Query {name: "start_time"}
-    int startTime;
-    # Return only usage for these models
-    string[] models?;
-    # Return only usages for these sources. Possible values are `image.generation`, `image.edit`, `image.variation` or any combination of them
-    ("image.generation"|"image.edit"|"image.variation")[] sources?;
-    # Return only usages for these image sizes. Possible values are `256x256`, `512x512`, `1024x1024`, `1792x1792`, `1024x1792` or any combination of them
-    ("256x256"|"512x512"|"1024x1024"|"1792x1792"|"1024x1792")[] sizes?;
-    # Return only usage for these users
-    @http:Query {name: "user_ids"}
-    string[] userIds?;
-    # Return only usage for these API keys
-    @http:Query {name: "api_key_ids"}
-    string[] apiKeyIds?;
-    # End time (Unix seconds) of the query time range, exclusive
-    @http:Query {name: "end_time"}
-    int endTime?;
-    # Specifies the number of buckets to return.
-    # - `bucket_width=1d`: default: 7, max: 31
-    # - `bucket_width=1h`: default: 24, max: 168
-    # - `bucket_width=1m`: default: 60, max: 1440
-    int 'limit?;
-    # Group the usage data by the specified fields. Support fields include `project_id`, `user_id`, `api_key_id`, `model`, `size`, `source` or any combination of them
-    @http:Query {name: "group_by"}
-    ("project_id"|"user_id"|"api_key_id"|"model"|"size"|"source")[] groupBy?;
-    # A cursor for use in pagination. Corresponding to the `next_page` field from the previous response
-    string page?;
-    # Width of each time bucket in response. Currently `1m`, `1h` and `1d` are supported, default to `1d`
-    @http:Query {name: "bucket_width"}
-    "1m"|"1h"|"1d" bucketWidth = "1d";
-    # Return only usage for these projects
-    @http:Query {name: "project_ids"}
-    string[] projectIds?;
-};
-
-# A batch of files attached to a vector store
-public type VectorStoreFileBatchObject record {
-    @jsondata:Name {value: "file_counts"}
-    VectorStoreFileBatchObjectFileCounts fileCounts;
-    # The Unix timestamp (in seconds) for when the vector store files batch was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    # The object type, which is always `vector_store.file_batch`
-    "vector_store.files_batch" 'object;
-    # The ID of the [vector store](/docs/api-reference/vector-stores/object) that the [File](/docs/api-reference/files) is attached to
-    @jsondata:Name {value: "vector_store_id"}
-    string vectorStoreId;
-    # The status of the vector store files batch, which can be either `in_progress`, `completed`, `cancelled` or `failed`
-    "in_progress"|"completed"|"cancelled"|"failed" status;
-};
-
-# The details for events with this `type`
-public type AuditLogUserupdated record {
-    @jsondata:Name {value: "changes_requested"}
-    AuditLogUserupdatedChangesRequested changesRequested?;
-    # The project ID
-    string id?;
-};
-
-# The details for events with this `type`
-public type AuditLogServiceAccountupdated record {
-    @jsondata:Name {value: "changes_requested"}
-    AuditLogServiceAccountupdatedChangesRequested changesRequested?;
-    # The service account ID
-    string id?;
-};
-
-# Represents the Queries record for the operation: usage-audio-transcriptions
-public type UsageAudioTranscriptionsQueries record {
-    # Start time (Unix seconds) of the query time range, inclusive
-    @http:Query {name: "start_time"}
-    int startTime;
-    # Return only usage for these models
-    string[] models?;
-    # Return only usage for these users
-    @http:Query {name: "user_ids"}
-    string[] userIds?;
-    # Return only usage for these API keys
-    @http:Query {name: "api_key_ids"}
-    string[] apiKeyIds?;
-    # End time (Unix seconds) of the query time range, exclusive
-    @http:Query {name: "end_time"}
-    int endTime?;
-    # Specifies the number of buckets to return.
-    # - `bucket_width=1d`: default: 7, max: 31
-    # - `bucket_width=1h`: default: 24, max: 168
-    # - `bucket_width=1m`: default: 60, max: 1440
-    int 'limit?;
-    # Group the usage data by the specified fields. Support fields include `project_id`, `user_id`, `api_key_id`, `model` or any combination of them
-    @http:Query {name: "group_by"}
-    ("project_id"|"user_id"|"api_key_id"|"model")[] groupBy?;
-    # A cursor for use in pagination. Corresponding to the `next_page` field from the previous response
-    string page?;
-    # Width of each time bucket in response. Currently `1m`, `1h` and `1d` are supported, default to `1d`
-    @http:Query {name: "bucket_width"}
-    "1m"|"1h"|"1d" bucketWidth = "1d";
-    # Return only usage for these projects
-    @http:Query {name: "project_ids"}
-    string[] projectIds?;
-};
-
-public type MessageContentTextAnnotationsFilePathObjectFilePath record {
-    # The ID of the file that was generated
-    @jsondata:Name {value: "file_id"}
-    string fileId;
-};
-
-# A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs
-public type CreateThreadAndRunRequestToolResources record {
-    @jsondata:Name {value: "code_interpreter"}
-    CreateAssistantRequestToolResourcesCodeInterpreter codeInterpreter?;
-    @jsondata:Name {value: "file_search"}
-    AssistantObjectToolResourcesFileSearch fileSearch?;
-};
-
-public type ModifyRunRequest record {|
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata?;
-|};
-
-# Specifying a particular function via `{"name": "my_function"}` forces the model to call that function
-public type ChatCompletionFunctionCallOption record {
-    # The name of the function to call
-    string name;
-};
-
-# The `fine_tuning.job` object represents a fine-tuning job that has been created through the API
-public type FineTuningJob record {
-    # The file ID used for training. You can retrieve the training data with the [Files API](/docs/api-reference/files/retrieve-contents)
-    @jsondata:Name {value: "training_file"}
-    string trainingFile;
-    # The compiled results file ID(s) for the fine-tuning job. You can retrieve the results with the [Files API](/docs/api-reference/files/retrieve-contents)
-    @jsondata:Name {value: "result_files"}
-    string[] resultFiles;
-    # The Unix timestamp (in seconds) for when the fine-tuning job was finished. The value will be null if the fine-tuning job is still running
-    @jsondata:Name {value: "finished_at"}
-    int? finishedAt;
-    # The seed used for the fine-tuning job
-    int seed;
-    # The name of the fine-tuned model that is being created. The value will be null if the fine-tuning job is still running
-    @jsondata:Name {value: "fine_tuned_model"}
-    string? fineTunedModel;
-    # The file ID used for validation. You can retrieve the validation results with the [Files API](/docs/api-reference/files/retrieve-contents)
-    @jsondata:Name {value: "validation_file"}
-    string? validationFile;
-    # The Unix timestamp (in seconds) for when the fine-tuning job was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # For fine-tuning jobs that have `failed`, this will contain more information on the cause of the failure
-    FineTuningJobError? 'error;
-    # The Unix timestamp (in seconds) for when the fine-tuning job is estimated to finish. The value will be null if the fine-tuning job is not running
-    @jsondata:Name {value: "estimated_finish"}
-    int? estimatedFinish?;
-    # The organization that owns the fine-tuning job
-    @jsondata:Name {value: "organization_id"}
-    string organizationId;
-    # The hyperparameters used for the fine-tuning job. See the [fine-tuning guide](/docs/guides/fine-tuning) for more details
-    FineTuningJobHyperparameters hyperparameters;
-    # The base model that is being fine-tuned
-    string model;
-    # The object identifier, which can be referenced in the API endpoints
-    string id;
-    # The total number of billable tokens processed by this fine-tuning job. The value will be null if the fine-tuning job is still running
-    @jsondata:Name {value: "trained_tokens"}
-    int? trainedTokens;
-    # A list of integrations to enable for this fine-tuning job
-    FineTuningJobIntegrations[]? integrations?;
-    # The object type, which is always "fine_tuning.job"
-    "fine_tuning.job" 'object;
-    # The current status of the fine-tuning job, which can be either `validating_files`, `queued`, `running`, `succeeded`, `failed`, or `cancelled`
-    "validating_files"|"queued"|"running"|"succeeded"|"failed"|"cancelled" status;
-};
-
-# Represents the Queries record for the operation: list-project-api-keys
-public type ListProjectApiKeysQueries record {
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-};
-
-public type CreateTranslationResponseVerboseJson record {
-    # The duration of the input audio
-    string duration;
-    # The language of the output translation (always `english`)
-    string language;
-    # The translated text
-    string text;
-    # Segments of the translated text and their corresponding details
-    TranscriptionSegment[] segments?;
-};
-
-public type ChatCompletionRequestSystemMessage record {
-    # The role of the messages author, in this case `system`
-    "system" role;
-    # An optional name for the participant. Provides the model information to differentiate between participants of the same role
-    string name?;
-    # The contents of the system message
-    string|ChatCompletionRequestSystemMessageContentPart[] content;
-};
-
-# Represents the Queries record for the operation: listAssistants
-public type ListAssistantsQueries record {
-    # A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list
-    string before?;
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-    # Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order
-    "asc"|"desc" 'order = "desc";
-};
-
-public type MessageContentTextObjectText record {
-    MessageContentTextObjectTextAnnotations[] annotations;
-    # The data that makes up the text
-    string value;
-};
-
-public type CreateCompletionResponseLogprobs record {
+public type InlineResponse200Logprobs record {
     @jsondata:Name {value: "top_logprobs"}
     record {||}[] topLogprobs?;
     @jsondata:Name {value: "token_logprobs"}
@@ -3618,629 +639,109 @@ public type CreateCompletionResponseLogprobs record {
     int[] textOffset?;
 };
 
-public type FineTuningJobIntegrations FineTuningIntegration;
-
-# The payload used to add the user to the project
-public type AuditLogUseraddedData record {
-    # The role of the user. Is either `owner` or `member`
-    string role?;
-};
-
-public type ProjectServiceAccountListResponse record {
-    @jsondata:Name {value: "first_id"}
-    string firstId;
-    ProjectServiceAccount[] data;
-    @jsondata:Name {value: "last_id"}
-    string lastId;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
-    "list" 'object;
-};
-
-public type DeleteFileResponse record {
-    boolean deleted;
-    string id;
-    "file" 'object;
-};
-
-# The details for events with this `type`
-public type AuditLogApiKeyupdated record {
-    @jsondata:Name {value: "changes_requested"}
-    AuditLogApiKeyupdatedChangesRequested changesRequested?;
-    # The tracking ID of the API key
-    string id?;
-};
-
-public type InviteRequest record {
-    # `owner` or `reader`
-    "reader"|"owner" role;
-    # Send an email to this address
-    string email;
-};
-
-public type ListFineTuningJobEventsResponse record {
-    FineTuningJobEvent[] data;
-    "list" 'object;
-};
-
-# The details for events with this `type`
-public type AuditLogOrganizationupdated record {
-    @jsondata:Name {value: "changes_requested"}
-    AuditLogOrganizationupdatedChangesRequested changesRequested?;
-    # The organization ID
-    string id?;
-};
-
-public type ProjectUpdateRequest record {
-    # The updated name of the project, this name appears in reports
-    string name;
-};
-
-public type CreateMessageRequest record {|
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata?;
-    # The role of the entity that is creating the message. Allowed values include:
-    # - `user`: Indicates the message is sent by an actual user and should be used in most cases to represent user-generated messages.
-    # - `assistant`: Indicates the message is generated by the assistant. Use this value to insert messages from the assistant into the conversation
-    "user"|"assistant" role;
-    # A list of files attached to the message, and the tools they should be added to
-    CreateMessageRequestAttachments[]? attachments?;
-    string|(MessageContentImageFileObject|MessageContentImageUrlObject|MessageRequestContentTextObject)[] content;
-|};
-
-public type CreateAssistantRequestToolResourcesFileSearch anydata;
-
-# The details for events with this `type`
-public type AuditLogRateLimitupdated record {
-    @jsondata:Name {value: "changes_requested"}
-    AuditLogRateLimitupdatedChangesRequested changesRequested?;
-    # The rate limit ID
-    string id?;
-};
-
-# Represents an individual `user` within an organization
-public type User record {
-    # The Unix timestamp (in seconds) of when the user was added
-    @jsondata:Name {value: "added_at"}
-    int addedAt;
-    # `owner` or `reader`
-    "owner"|"reader" role;
-    # The name of the user
-    string name;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    # The email address of the user
-    string email;
-    # The object type, which is always `organization.user`
-    "organization.user" 'object;
-};
-
-# Represents a step in execution of a run
-public type RunStepObject record {
-    # The Unix timestamp (in seconds) for when the run step was cancelled
-    @jsondata:Name {value: "cancelled_at"}
-    int? cancelledAt;
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata;
-    # The ID of the [assistant](/docs/api-reference/assistants) associated with the run step
-    @jsondata:Name {value: "assistant_id"}
-    string assistantId;
-    # The ID of the [run](/docs/api-reference/runs) that this run step is a part of
-    @jsondata:Name {value: "run_id"}
-    string runId;
-    # Usage statistics related to the run step. This value will be `null` while the run step's status is `in_progress`
-    RunStepCompletionUsage? usage;
-    # The Unix timestamp (in seconds) for when the run step was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The Unix timestamp (in seconds) for when the run step expired. A step is considered expired if the parent run is expired
-    @jsondata:Name {value: "expired_at"}
-    int? expiredAt;
-    # The type of run step, which can be either `message_creation` or `tool_calls`
-    "message_creation"|"tool_calls" 'type;
-    # The details of the run step
-    @jsondata:Name {value: "step_details"}
-    RunStepDetailsMessageCreationObject|RunStepDetailsToolCallsObject stepDetails;
-    # The Unix timestamp (in seconds) for when the run step completed
-    @jsondata:Name {value: "completed_at"}
-    int? completedAt;
-    # The ID of the [thread](/docs/api-reference/threads) that was run
-    @jsondata:Name {value: "thread_id"}
-    string threadId;
-    # The identifier of the run step, which can be referenced in API endpoints
-    string id;
-    @jsondata:Name {value: "last_error"}
-    RunStepObjectLastError? lastError;
-    # The Unix timestamp (in seconds) for when the run step failed
-    @jsondata:Name {value: "failed_at"}
-    int? failedAt;
-    # The object type, which is always `thread.run.step`
-    "thread.run.step" 'object;
-    # The status of the run step, which can be either `in_progress`, `cancelled`, `failed`, `completed`, or `expired`
-    "in_progress"|"cancelled"|"failed"|"completed"|"expired" status;
-};
-
-# Specifies a tool the model should use. Use to force the model to call a specific function
-public type ChatCompletionNamedToolChoice record {
-    AssistantsNamedToolChoiceFunction 'function;
-    # The type of the tool. Currently, only `function` is supported
-    "function" 'type;
-};
-
-# Output types that you would like the model to generate for this request.
-# Most models are capable of generating text, which is the default:
-# 
-# `["text"]`
-# 
-# The `gpt-4o-audio-preview` model can also be used to [generate audio](/docs/guides/audio). To
-# request that this model generate both text and audio responses, you can
-# use:
-# 
-# `["text", "audio"]`
-public type ChatCompletionModalities ("text"|"audio")[]?;
-
-public type CreateModerationResponseResults record {
-    @jsondata:Name {value: "category_scores"}
-    CreateModerationResponseCategoryScores categoryScores;
-    # Whether any of the below categories are flagged
-    boolean flagged;
-    @jsondata:Name {value: "category_applied_input_types"}
-    CreateModerationResponseCategoryAppliedInputTypes categoryAppliedInputTypes;
-    # A list of the categories, and whether they are flagged or not
-    CreateModerationResponseCategories categories;
-};
-
-public type MessageObjectContent MessageContentImageFileObject|MessageContentImageUrlObject|MessageContentTextObject|MessageContentRefusalObject;
-
-public type InlineResponse200 CreateTranscriptionResponseJson|CreateTranscriptionResponseVerboseJson;
-
-# The definition of the function that was called
-public type RunStepDetailsToolCallsFunctionObjectFunction record {
-    # The output of the function. This will be `null` if the outputs have not been [submitted](/docs/api-reference/runs/submitToolOutputs) yet
-    string? output;
-    # The name of the function
-    string name;
-    # The arguments passed to the function
-    string arguments;
-};
-
-public type FunctionObject record {
-    # The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64
-    string name;
-    # A description of what the function does, used by the model to choose when and how to call the function
-    string description?;
-    # Whether to enable strict schema adherence when generating the function call. If set to true, the model will follow the exact schema defined in the `parameters` field. Only a subset of JSON Schema is supported when `strict` is `true`. Learn more about Structured Outputs in the [function calling guide](docs/guides/function-calling)
-    boolean? strict = false;
-    # The parameters the functions accepts, described as a JSON Schema object. See the [guide](/docs/guides/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format. 
-    # 
-    # Omitting `parameters` defines a function with an empty parameter list
-    FunctionParameters parameters?;
-};
-
-# Represents the Queries record for the operation: listFineTuningJobCheckpoints
-public type ListFineTuningJobCheckpointsQueries record {
-    # Number of checkpoints to retrieve
-    int 'limit = 10;
-    # Identifier for the last checkpoint ID from the previous pagination request
-    string after?;
-};
-
-# The aggregated completions usage details of the specific time bucket
-public type UsageCompletionsResult record {
-    # The count of requests made to the model
-    @jsondata:Name {value: "num_model_requests"}
-    int numModelRequests;
-    # When `group_by=project_id`, this field provides the project ID of the grouped usage result
-    @jsondata:Name {value: "project_id"}
-    string? projectId?;
-    # When `group_by=user_id`, this field provides the user ID of the grouped usage result
-    @jsondata:Name {value: "user_id"}
-    string? userId?;
-    # When `group_by=batch`, this field tells whether the grouped usage result is batch or not
-    boolean? batch?;
-    # The aggregated number of output tokens used. For customers subscribe to scale tier, this includes scale tier tokens
-    @jsondata:Name {value: "output_tokens"}
-    int outputTokens;
-    # When `group_by=model`, this field provides the model name of the grouped usage result
-    string? model?;
-    # The aggregated number of input tokens that has been cached from previous requests. For customers subscribe to scale tier, this includes scale tier tokens
-    @jsondata:Name {value: "input_cached_tokens"}
-    int inputCachedTokens?;
-    # The aggregated number of input tokens used. For customers subscribe to scale tier, this includes scale tier tokens
-    @jsondata:Name {value: "input_tokens"}
-    int inputTokens;
-    # When `group_by=api_key_id`, this field provides the API key ID of the grouped usage result
-    @jsondata:Name {value: "api_key_id"}
-    string? apiKeyId?;
-    "organization.usage.completions.result" 'object;
-};
-
-# Represents the Queries record for the operation: getRunStep
-public type GetRunStepQueries record {
-    # A list of additional fields to include in the response. Currently the only supported value is `step_details.tool_calls[*].file_search.results[*].content` to fetch the file search result content.
-    # 
-    # See the [file search tool documentation](/docs/assistants/tools/file-search#customizing-file-search-settings) for more information
-    @http:Query {name: "include[]"}
-    ("step_details.tool_calls[*].file_search.results[*].content")[] include?;
-};
-
-public type ResponseFormatJsonSchema record {
-    @jsondata:Name {value: "json_schema"}
-    ResponseFormatJsonSchemaJsonSchema jsonSchema;
-    # The type of response format being defined: `json_schema`
-    "json_schema" 'type;
-};
-
-# A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs
-public type CreateAssistantRequestToolResources record {
-    @jsondata:Name {value: "code_interpreter"}
-    CreateAssistantRequestToolResourcesCodeInterpreter codeInterpreter?;
-    @jsondata:Name {value: "file_search"}
-    CreateAssistantRequestToolResourcesFileSearch fileSearch?;
-};
-
-# The payload used to create the project
-public type AuditLogProjectcreatedData record {
-    # The project name
-    string name?;
-    # The title of the project as seen on the dashboard
-    string title?;
-};
-
-public type InviteListResponse record {
-    # The first `invite_id` in the retrieved `list`
-    @jsondata:Name {value: "first_id"}
-    string firstId?;
-    Invite[] data;
-    # The last `invite_id` in the retrieved `list`
-    @jsondata:Name {value: "last_id"}
-    string lastId?;
-    # The `has_more` property is used for pagination to indicate there are additional results
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore?;
-    # The object type, which is always `list`
-    "list" 'object;
-};
-
-# Represents the Queries record for the operation: listFiles
-public type ListFilesQueries record {
-    # Only return files with the given purpose
-    string purpose?;
-    # A limit on the number of objects to be returned. Limit can range between 1 and 10,000, and the default is 10,000
-    int 'limit = 10000;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-    # Sort order by the `created_at` timestamp of the objects. `asc` for ascending order and `desc` for descending order
-    "asc"|"desc" 'order = "desc";
-};
-
-public type CreateAssistantRequest record {|
-    # An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-    # 
-    # We generally recommend altering this or temperature but not both
-    @jsondata:Name {value: "top_p"}
-    decimal? topp = 1;
-    # The system instructions that the assistant uses. The maximum length is 256,000 characters
-    string? instructions?;
-    @jsondata:Name {value: "tool_resources"}
-    CreateAssistantRequestToolResources? toolResources?;
-    # Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long
-    record {}? metadata?;
-    @jsondata:Name {value: "response_format"}
-    AssistantsApiResponseFormatOption responseFormat?;
-    # The name of the assistant. The maximum length is 256 characters
-    string? name?;
-    # What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic
-    decimal? temperature = 1;
-    # The description of the assistant. The maximum length is 512 characters
-    string? description?;
-    # ID of the model to use. You can use the [List models](/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](/docs/models) for descriptions of them
-    string|"gpt-4o"|"gpt-4o-2024-11-20"|"gpt-4o-2024-08-06"|"gpt-4o-2024-05-13"|"gpt-4o-mini"|"gpt-4o-mini-2024-07-18"|"gpt-4-turbo"|"gpt-4-turbo-2024-04-09"|"gpt-4-0125-preview"|"gpt-4-turbo-preview"|"gpt-4-1106-preview"|"gpt-4-vision-preview"|"gpt-4"|"gpt-4-0314"|"gpt-4-0613"|"gpt-4-32k"|"gpt-4-32k-0314"|"gpt-4-32k-0613"|"gpt-3.5-turbo"|"gpt-3.5-turbo-16k"|"gpt-3.5-turbo-0613"|"gpt-3.5-turbo-1106"|"gpt-3.5-turbo-0125"|"gpt-3.5-turbo-16k-0613" model;
-    # A list of tool enabled on the assistant. There can be a maximum of 128 tools per assistant. Tools can be of types `code_interpreter`, `file_search`, or `function`
-    @constraint:Array {maxLength: 128}
-    AssistantObjectTools[] tools = [];
-|};
-
-public type DeleteVectorStoreResponse record {
-    boolean deleted;
-    string id;
-    "vector_store.deleted" 'object;
-};
-
-public type DeleteAssistantResponse record {
-    boolean deleted;
-    string id;
-    "assistant.deleted" 'object;
-};
-
-# The payload used to update the project
-public type AuditLogProjectupdatedChangesRequested record {
-    # The title of the project as seen on the dashboard
-    string title?;
-};
-
-public type CreateAssistantRequestToolResourcesCodeInterpreter record {
-    # A list of [file](/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool
-    @jsondata:Name {value: "file_ids"}
-    string[] fileIds = [];
-};
-
-public type ProjectRateLimitListResponse record {
-    @jsondata:Name {value: "first_id"}
-    string firstId;
-    ProjectRateLimit[] data;
-    @jsondata:Name {value: "last_id"}
-    string lastId;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
-    "list" 'object;
-};
-
-public type RunStepDetailsToolCallsFileSearchObject record {
-    @jsondata:Name {value: "file_search"}
-    RunStepDetailsToolCallsFileSearchObjectFileSearch fileSearch;
-    # The ID of the tool call object
-    string id;
-    # The type of tool call. This is always going to be `file_search` for this type of tool call
-    "file_search" 'type;
-};
-
-public type ResponseFormatText record {
-    # The type of response format being defined: `text`
-    "text" 'type;
-};
-
-# The upload Part represents a chunk of bytes we can add to an Upload object
-public type UploadPart record {
-    # The ID of the Upload object that this Part was added to
-    @jsondata:Name {value: "upload_id"}
-    string uploadId;
-    # The Unix timestamp (in seconds) for when the Part was created
-    @jsondata:Name {value: "created_at"}
-    int createdAt;
-    # The upload Part unique identifier, which can be referenced in API endpoints
-    string id;
-    # The object type, which is always `upload.part`
-    "upload.part" 'object;
-};
-
-# The details for events with this `type`
-public type AuditLogServiceAccountdeleted record {
-    # The service account ID
-    string id?;
-};
-
-# Represents a chat completion response returned by model, based on the provided input
-public type CreateChatCompletionResponse record {
-    # The Unix timestamp (in seconds) of when the chat completion was created
-    int created;
-    # Usage statistics for the completion request
-    CompletionUsage usage?;
-    # The model used for the chat completion
-    string model;
-    # The service tier used for processing the request. This field is only included if the `service_tier` parameter is specified in the request
-    @jsondata:Name {value: "service_tier"}
-    "scale"|"default"? serviceTier?;
-    # A unique identifier for the chat completion
-    string id;
-    # A list of chat completion choices. Can be more than one if `n` is greater than 1
-    CreateChatCompletionResponseChoices[] choices;
-    # This fingerprint represents the backend configuration that the model runs with.
-    # 
-    # Can be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism
-    @jsondata:Name {value: "system_fingerprint"}
-    string? systemFingerprint?;
-    # The object type, which is always `chat.completion`
-    "chat.completion" 'object;
-};
-
-# Deprecated and replaced by `tool_calls`. The name and arguments of a function that should be called, as generated by the model
-# 
-# # Deprecated
-@deprecated
-public type ChatCompletionRequestAssistantMessageFunctionCall record {
-    # The name of the function to call
-    string name;
-    # The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function
-    string arguments;
-};
-
-# Breakdown of tokens used in the prompt
-public type CompletionUsagePromptTokensDetails record {
-    # Audio input tokens present in the prompt
-    @jsondata:Name {value: "audio_tokens"}
-    int audioTokens?;
-    # Cached tokens present in the prompt
-    @jsondata:Name {value: "cached_tokens"}
-    int cachedTokens?;
-};
-
-# Represents the Queries record for the operation: list-audit-logs
-public type ListAuditLogsQueries record {
-    # Return only events with a `type` in one of these values. For example, `project.created`. For all options, see the documentation for the [audit log object](/docs/api-reference/audit-logs/object)
-    @http:Query {name: "event_types[]"}
-    AuditLogEventType[] eventTypes?;
-    # Return only events whose `effective_at` (Unix seconds) is in this range
-    @http:Query {name: "effective_at"}
-    EffectiveAt effectiveAt?;
-    # A cursor for use in pagination. `before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_foo, your subsequent call can include before=obj_foo in order to fetch the previous page of the list
-    string before?;
-    # Return only events performed by users with these emails
-    @http:Query {name: "actor_emails[]"}
-    string[] actorEmails?;
-    # A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 20
-    int 'limit = 20;
-    # Return only events performed on these targets. For example, a project ID updated
-    @http:Query {name: "resource_ids[]"}
-    string[] resourceIds?;
-    # A cursor for use in pagination. `after` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include after=obj_foo in order to fetch the next page of the list
-    string after?;
-    # Return only events performed by these actors. Can be a user ID, a service account ID, or an api key tracking ID
-    @http:Query {name: "actor_ids[]"}
-    string[] actorIds?;
-    # Return only events for these projects
-    @http:Query {name: "project_ids[]"}
-    string[] projectIds?;
-};
-
-public type CreateTranslationResponseJson record {
-    string text;
-};
-
-public type ChatCompletionRequestToolMessage record {
-    # The role of the messages author, in this case `tool`
-    "tool" role;
-    # Tool call that this message is responding to
-    @jsondata:Name {value: "tool_call_id"}
-    string toolCallId;
-    # The contents of the tool message
-    string|ChatCompletionRequestToolMessageContentPart[] content;
-};
-
-public type ChatCompletionRequestMessageContentPartImageImageUrl record {
-    # Specifies the detail level of the image. Learn more in the [Vision guide](/docs/guides/vision#low-or-high-fidelity-image-understanding)
-    "auto"|"low"|"high" detail = "auto";
-    # Either a URL of the image or the base64 encoded image data
-    string url;
-};
-
-public type CreateImageVariationRequest record {
-    # The image to use as the basis for the variation(s). Must be a valid PNG file, less than 4MB, and square
-    record {byte[] fileContent; string fileName;} image;
-    # The format in which the generated images are returned. Must be one of `url` or `b64_json`. URLs are only valid for 60 minutes after the image has been generated
-    @jsondata:Name {value: "response_format"}
-    "url"|"b64_json"? responseFormat = "url";
-    # The size of the generated images. Must be one of `256x256`, `512x512`, or `1024x1024`
-    "256x256"|"512x512"|"1024x1024"? size = "1024x1024";
-    # The model to use for image generation. Only `dall-e-2` is supported at this time
-    string|"dall-e-2"? model = "dall-e-2";
-    # A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](/docs/guides/safety-best-practices#end-user-ids)
-    string user?;
-    # The number of images to generate. Must be between 1 and 10. For `dall-e-3`, only `n=1` is supported
-    int? n = 1;
-};
-
-# The details for events with this `type`
-public type AuditLogUserdeleted record {
-    # The user ID
-    string id?;
-};
-
 # A chat completion message generated by the model
 public type ChatCompletionResponseMessage record {
-    # The role of the author of this message
-    "assistant" role;
+    # The role of the author of the response message
+    ChatCompletionResponseMessageRole role?;
     @jsondata:Name {value: "function_call"}
-    ChatCompletionResponseMessageFunctionCall functionCall?;
-    # The refusal message generated by the model
-    string? refusal;
+    ChatCompletionFunctionCall functionCall?;
+    # The tool calls generated by the model, such as function calls
     @jsondata:Name {value: "tool_calls"}
-    ChatCompletionMessageToolCalls toolCalls?;
-    # If the audio output modality is requested, this object contains data
-    # about the audio response from the model. [Learn more](/docs/guides/audio)
-    ChatCompletionResponseMessageAudio? audio?;
+    ChatCompletionMessageToolCall[] toolCalls?;
     # The contents of the message
-    string? content;
+    string? content?;
 };
 
-public type DeleteThreadResponse record {
-    boolean deleted;
-    string id;
-    "thread.deleted" 'object;
+public type ContentFilterDetectedWithCitationResult_citation record {
+    string license?;
+    @jsondata:Name {value: "URL"}
+    string uRL?;
 };
 
-public type UsageResponse record {
-    @jsondata:Name {value: "next_page"}
-    string nextPage;
-    UsageTimeBucket[] data;
-    @jsondata:Name {value: "has_more"}
-    boolean hasMore;
-    "page" 'object;
+public type ImageGenerationsRequest record {
+    @jsondata:Name {value: "response_format"}
+    ImagesResponseFormat responseFormat?;
+    # The size of the generated images
+    ImageSize size?;
+    # The style of the generated images
+    ImageStyle style?;
+    # A text description of the desired image(s). The maximum length is 4000 characters
+    @constraint:String {minLength: 1}
+    string prompt;
+    # A unique identifier representing your end-user, which can help to monitor and detect abuse
+    string user?;
+    # The number of images to generate
+    @constraint:Int {minValue: 1, maxValue: 1}
+    int n = 1;
+    # The quality of the image that will be generated
+    ImageQuality quality?;
 };
 
-# The actor who performed the audit logged action
-public type AuditLogActor record {
-    @jsondata:Name {value: "api_key"}
-    AuditLogActorApiKey apiKey?;
-    # The session in which the audit logged action was performed
-    AuditLogActorSession session?;
-    # The type of actor. Is either `session` or `api_key`
-    "session"|"api_key" 'type?;
+public type ChatCompletionNamedToolChoiceFunction record {
+    # The name of the function to call
+    string name;
 };
 
-# Text output from the Code Interpreter tool call as part of a run step
-public type RunStepDetailsToolCallsCodeOutputLogsObject record {
-    # Always `logs`
-    "logs" 'type;
-    # The text output from the Code Interpreter tool call
-    string logs;
+# Request object to specify if ocr enhancement is needed.
+public type ExtensionsChatCompletionsRequest_enhancements_ocr record {
+    boolean enabled = false;
 };
 
-public type StaticChunkingStrategyResponseParam record {|
-    StaticChunkingStrategy static;
-    # Always `static`
-    "static" 'type;
-|};
-
-# The event type
-public type AuditLogEventType "api_key.created"|"api_key.updated"|"api_key.deleted"|"invite.sent"|"invite.accepted"|"invite.deleted"|"login.succeeded"|"login.failed"|"logout.succeeded"|"logout.failed"|"organization.updated"|"project.created"|"project.updated"|"project.archived"|"service_account.created"|"service_account.updated"|"service_account.deleted"|"rate_limit.updated"|"rate_limit.deleted"|"user.added"|"user.updated"|"user.deleted";
-
-public type ProjectServiceAccountDeleteResponse record {
-    boolean deleted;
-    string id;
-    "organization.project.service_account.deleted" 'object;
+public type InlineResponse2001 record {
+    InlineResponse2001Data[] data;
+    InlineResponse2001Usage usage;
+    string model;
+    string 'object;
 };
 
-public type ChatCompletionRequestMessageContentPartRefusal record {
-    # The refusal message generated by the model
-    string refusal;
-    # The type of the content part
-    "refusal" 'type;
+# Request for the chat completions using extensions
+public type ExtensionsChatCompletionsRequest record {
+    *ChatCompletionsRequestCommon;
+    # The type of enhancements needed.
+    ExtensionsChatCompletionsRequest_enhancements enhancements?;
+    Message[] messages;
+    # The data sources to be used for the Azure OpenAI on your data feature.
+    DataSource[] dataSources?;
 };
 
-# Details of the message creation by the run step
-public type RunStepDetailsMessageCreationObject record {
-    @jsondata:Name {value: "message_creation"}
-    RunStepDetailsMessageCreationObjectMessageCreation messageCreation;
-    # Always `message_creation`
-    "message_creation" 'type;
+public type InlineResponse2002 AudioResponse|AudioVerboseResponse;
+
+public type ChatCompletionFunction record {
+    # The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64
+    string name;
+    # The description of what the function does
+    string description?;
+    # The parameters the functions accepts, described as a JSON Schema object. See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format
+    ChatCompletionFunctionParameters parameters?;
 };
 
-# Represents the Queries record for the operation: listPaginatedFineTuningJobs
-public type ListPaginatedFineTuningJobsQueries record {
-    # Number of fine-tuning jobs to retrieve
-    int 'limit = 20;
-    # Identifier for the last job from the previous pagination request
-    string after?;
+# The parameters the functions accepts, described as a JSON Schema object. See the [guide](/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format
+public type ChatCompletionFunctionParameters record {
 };
 
-# Represents an individual `invite` to the organization
-public type Invite record {
-    # `owner` or `reader`
-    "owner"|"reader" role;
-    # The Unix timestamp (in seconds) of when the invite expires
-    @jsondata:Name {value: "expires_at"}
-    int expiresAt;
-    # The Unix timestamp (in seconds) of when the invite was sent
-    @jsondata:Name {value: "invited_at"}
-    int invitedAt;
-    # The identifier, which can be referenced in API endpoints
-    string id;
-    # The Unix timestamp (in seconds) of when the invite was accepted
-    @jsondata:Name {value: "accepted_at"}
-    int acceptedAt?;
-    # The email address of the individual to whom the invite was sent
-    string email;
-    # The object type, which is always `organization.invite`
-    "organization.invite" 'object;
-    # `accepted`,`expired`, or `pending`
-    "accepted"|"expired"|"pending" status;
-};
-
-public type MessageContentImageFileObjectImageFile record {
-    # The [File](/docs/api-reference/files) ID of the image in the message content. Set `purpose="vision"` when uploading the File if you need to later display the file content
-    @jsondata:Name {value: "file_id"}
-    string fileId;
-    # Specifies the detail level of the image if specified by the user. `low` uses fewer tokens, you can opt in to high resolution using `high`
-    "auto"|"low"|"high" detail = "auto";
+# Transcription or translation segment
+public type AudioSegment record {
+    # Segment start offset
+    decimal 'start?;
+    # Temperature
+    decimal temperature?;
+    # Average log probability
+    @jsondata:Name {value: "avg_logprob"}
+    decimal avgLogprob?;
+    # Probability of 'no speech'
+    @jsondata:Name {value: "no_speech_prob"}
+    decimal noSpeechProb?;
+    # Segment end offset
+    decimal end?;
+    # Tokens of the text
+    decimal[] tokens?;
+    # Segment identifier
+    int id?;
+    # Segment text
+    string text?;
+    # Offset of the segment
+    decimal seek?;
+    # Compression ratio
+    @jsondata:Name {value: "compression_ratio"}
+    decimal compressionRatio?;
 };
