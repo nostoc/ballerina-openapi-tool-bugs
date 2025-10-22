@@ -3,9 +3,9 @@
 
 import ballerina/http;
 
-# This is a generated connector from [Novel COVID-19 API version 3.0.0](https://disease.sh/docs/) OpenAPI Specification.
-# Ballerina connector for COVID-19 provides easy access to latest COVID-19 related data across the world. Please refer to [API documentation](https://disease.sh) for more detail.
-@display {label: "COVID-19", iconPath: "icon.png"}
+# This is a generated connector from [World Bank API v2](https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api-documentation) OpenAPI Specification. 
+# The World Bank Indicators API provides access to nearly 16,000 time series indicators. Most of these indicators are available online through tools such as `Databank` and the `Open Data` website. The API provides programmatic access to this same data. Many data series date back over 50 years, and can be used to create interesting applications.
+@display {label: "World Bank", iconPath: "icon.png"}
 public isolated client class Client {
     final http:Client clientEp;
     # Gets invoked to initialize the `connector`.
@@ -14,418 +14,133 @@ public isolated client class Client {
     # + config - The configurations to be used when initializing the `connector` 
     # + serviceUrl - URL of the target service 
     # + return - An error if connector initialization failed 
-    public isolated function init(ConnectionConfig config =  {}, string serviceUrl = "https://disease.sh/v3") returns error? {
+    public isolated function init(ConnectionConfig config =  {}, string serviceUrl = "http://api.worldbank.org/v2/") returns error? {
         http:ClientConfiguration httpClientConfig = {httpVersion: config.httpVersion, http1Settings: config.http1Settings, http2Settings: config.http2Settings, timeout: config.timeout, forwarded: config.forwarded, followRedirects: config.followRedirects, poolConfig: config.poolConfig, cache: config.cache, compression: config.compression, circuitBreaker: config.circuitBreaker, retryConfig: config.retryConfig, cookieConfig: config.cookieConfig, responseLimits: config.responseLimits, secureSocket: config.secureSocket, proxy: config.proxy, socketConfig: config.socketConfig, validation: config.validation, laxDataBinding: config.laxDataBinding};
         self.clientEp = check new (serviceUrl, httpClientConfig);
     }
 
-    # Get global COVID-19 totals for today, yesterday and two days ago
+    # Get population of each country
     #
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - Global COVID-19 status 
-    remote isolated function getGlobalStatus(map<string|string[]> headers = {}, *GetGlobalStatusQueries queries) returns CovidAll|error {
-        string resourcePath = string `/covid-19/all`;
+    # + return - Population of each countries 
+    @display {label: "Get Population"}
+    resource isolated function get country/all/indicator/SP\.POP\.TOTL(map<string|string[]> headers = {}, *GetPopulationQueries queries) returns WorldBankResponse|error {
+        string resourcePath = string `/country/all/indicator/SP.POP.TOTL`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Get COVID-19 totals for all US States
+    # Get population of a country
     #
+    # + countryCode - Country code (Example- AFG, ALB, LKA)
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - Status OK 
-    remote isolated function getAllUSAStatesStatus(map<string|string[]> headers = {}, *GetAllUSAStatesStatusQueries queries) returns CovidStates|error {
-        string resourcePath = string `/covid-19/states`;
+    # + return - Yearly population of the given country 
+    @display {label: "Get Country Population"}
+    resource isolated function get country/[string countryCode]/indicator/SP\.POP\.TOTL(map<string|string[]> headers = {}, *GetPopulationByCountryQueries queries) returns WorldBankResponse|error {
+        string resourcePath = string `/country/${getEncodedUri(countryCode)}/indicator/SP.POP.TOTL`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Get COVID-19 totals for specific US State(s)
+    # Get GDP of each country.
     #
-    # + states - State name or comma separated names spelled correctly
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - COVID-19 status of the given US state 
-    remote isolated function getUSAStatusByState(string states, map<string|string[]> headers = {}, *GetUSAStatusByStateQueries queries) returns CovidState|error {
-        string resourcePath = string `/covid-19/states/${getEncodedUri(states)}`;
+    # + return - GDP of each country 
+    @display {label: "Get GDP"}
+    resource isolated function get country/all/indicator/NY\.GDP\.MKTP\.CD(map<string|string[]> headers = {}, *GetGDPQueries queries) returns WorldBankResponse|error {
+        string resourcePath = string `/country/all/indicator/NY.GDP.MKTP.CD`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Get COVID-19 totals for all continents
+    # Get GDP of a country.
     #
+    # + countryCode - Country code (Example- AFG, ALB, LKA)
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - Status OK 
-    remote isolated function getAllContinentsStatus(map<string|string[]> headers = {}, *GetAllContinentsStatusQueries queries) returns CovidContinents|error {
-        string resourcePath = string `/covid-19/continents`;
+    # + return - Yearly GDP of the given country 
+    @display {label: "Get GDP By Country"}
+    resource isolated function get country/[string countryCode]/indicator/NY\.GDP\.MKTP\.CD(map<string|string[]> headers = {}, *GetGDPByCountryQueries queries) returns WorldBankResponse|error {
+        string resourcePath = string `/country/${getEncodedUri(countryCode)}/indicator/NY.GDP.MKTP.CD`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Get COVID-19 totals for a specific continent
+    # Get percentage of population with access to electricity of countries in the world.
     #
-    # + continent - Continent name
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - COVID-19 status of the given continent 
-    remote isolated function getStatusByContinent(string continent, map<string|string[]> headers = {}, *GetStatusByContinentQueries queries) returns CovidContinent|error {
-        string resourcePath = string `/covid-19/continents/${getEncodedUri(continent)}`;
+    # + return - Population percentage having electricity of each country 
+    @display {label: "Get Population% Having Electricity"}
+    resource isolated function get country/all/indicator/'1\.1_ACCESS\.ELECTRICITY\.TOT(map<string|string[]> headers = {}, *GetAccessToElectricityPercentageQueries queries) returns WorldBankResponse|error {
+        string resourcePath = string `/country/all/indicator/1.1_ACCESS.ELECTRICITY.TOT`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Get COVID-19 totals for all countries
+    # Get percentage of population with access to electricity of a given country.
     #
+    # + countryCode - Country code (Example- AFG, ALB, LKA)
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - Status OK 
-    remote isolated function getAllCountriesStatus(map<string|string[]> headers = {}, *GetAllCountriesStatusQueries queries) returns CovidCountries|error {
-        string resourcePath = string `/covid-19/countries`;
+    # + return - Yearly population percentage having electricity of the given country 
+    @display {label: "Get Population% Having Electricity By Country"}
+    resource isolated function get country/[string countryCode]/indicator/'1\.1_ACCESS\.ELECTRICITY\.TOT(map<string|string[]> headers = {}, *GetAccessToElectricityPercentageByCountryQueries queries) returns WorldBankResponse|error {
+        string resourcePath = string `/country/${getEncodedUri(countryCode)}/indicator/1.1_ACCESS.ELECTRICITY.TOT`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Get COVID-19 totals for a specific country
+    # Get literacy rate of youth (% of people ages 15-24) of countries in the world.
     #
-    # + country - A country name, iso2, iso3, or country ID code
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - COVID-19 status of the given country 
-    remote isolated function getStatusByCountry(string country, map<string|string[]> headers = {}, *GetStatusByCountryQueries queries) returns CovidCountry|error {
-        string resourcePath = string `/covid-19/countries/${getEncodedUri(country)}`;
+    # + return - Youth literacy rate of each country 
+    @display {label: "Get Youth Literacy Rate"}
+    resource isolated function get country/all/indicator/'1\.1_YOUTH\.LITERACY\.RATE(map<string|string[]> headers = {}, *GetYouthLiteracyRateQueries queries) returns WorldBankResponse|error {
+        string resourcePath = string `/country/all/indicator/1.1_YOUTH.LITERACY.RATE`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Get COVID-19 totals for a specific set of countries
+    # Get literacy rate of youth (% of people ages 15-24) of a country.
     #
-    # + countries - Multiple country names, iso2, iso3, or country IDs separated by commas
+    # + countryCode - Country code (Example- AFG, ALB, LKA)
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - Status OK 
-    remote isolated function getMultipleCountriesStatus(string countries, map<string|string[]> headers = {}, *GetMultipleCountriesStatusQueries queries) returns CovidCountries|error {
-        string resourcePath = string `/covid-19/countries/${getEncodedUri(countries)}`;
+    # + return - Youth literacy rate of the given country 
+    @display {label: "Get Youth Literacy Rate By Country"}
+    resource isolated function get country/[string countryCode]/indicator/'1\.1_YOUTH\.LITERACY\.RATE(map<string|string[]> headers = {}, *GetYouthLiteracyRateByCountryQueries queries) returns WorldBankResponse|error {
+        string resourcePath = string `/country/${getEncodedUri(countryCode)}/indicator/1.1_YOUTH.LITERACY.RATE`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Get COVID-19 totals for all countries and their provinces
-    #
-    # + headers - Headers to be sent with the request 
-    # + return - Status OK 
-    remote isolated function getAllCountriesAndProvincesStatus(map<string|string[]> headers = {}) returns CovidJHUCountries|error {
-        string resourcePath = string `/covid-19/jhucsse`;
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 totals for all US counties
-    #
-    # + headers - Headers to be sent with the request 
-    # + return - Status OK 
-    remote isolated function getUSCountiesStatus(map<string|string[]> headers = {}) returns CovidJHUCounties|error {
-        string resourcePath = string `/covid-19/jhucsse/counties`;
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 totals for a specific county
-    #
-    # + county - Name of any county in the USA. All counties are listed in the /v3/covid-19/jhucsse/counties/ endpoint
-    # + headers - Headers to be sent with the request 
-    # + return - Status OK 
-    remote isolated function getUSAStatusByCounty(string county, map<string|string[]> headers = {}) returns CovidJHUCounties|error {
-        string resourcePath = string `/covid-19/jhucsse/counties/${getEncodedUri(county)}`;
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 time series data for all countries and their provinces
+    # Get government expenditure on primary education of each country
     #
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - Status OK 
-    remote isolated function getTimeSeriesForAllCountriesAndProvinces(map<string|string[]> headers = {}, *GetTimeSeriesForAllCountriesAndProvincesQueries queries) returns CovidHistorical|error {
-        string resourcePath = string `/covid-19/historical`;
+    # + return - Government expenditure on primary education of each country 
+    @display {label: "Get Government Expenditure On Education"}
+    resource isolated function get country/all/indicator/UIS\.X\.PPP\.1\.FSGOV(map<string|string[]> headers = {}, *GetGovernmentExpenditureOnPrimaryEducationQueries queries) returns WorldBankResponse|error {
+        string resourcePath = string `/country/all/indicator/UIS.X.PPP.1.FSGOV`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Get global accumulated COVID-19 time series data
+    # Get government expenditure on primary education of a country.
     #
+    # + countryCode - Country code (Example- AFG, ALB, LKA)
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getGlobalStatusInTimeSeries(map<string|string[]> headers = {}, *GetGlobalStatusInTimeSeriesQueries queries) returns CovidHistoricalAll|error {
-        string resourcePath = string `/covid-19/historical/all`;
+    # + return - Government expenditure on primary education of a country 
+    @display {label: "Get Government Expenditure On Education By Country"}
+    resource isolated function get country/[string countryCode]/indicator/UIS\.X\.PPP\.1\.FSGOV(map<string|string[]> headers = {}, *GetGovernmentExpenditureOnPrimaryEducationByCountryQueries queries) returns WorldBankResponse|error {
+        string resourcePath = string `/country/${getEncodedUri(countryCode)}/indicator/UIS.X.PPP.1.FSGOV`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 time series data for a specific country
-    #
-    # + country - A country name, iso2, iso3, or country ID code
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - COVID-19 related time series for the given country 
-    remote isolated function getTimeSeriesBycountry(string country, map<string|string[]> headers = {}, *GetTimeSeriesBycountryQueries queries) returns CovidHistoricalCountry|error {
-        string resourcePath = string `/covid-19/historical/${getEncodedUri(country)}`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 time series data for a specific set of countries
-    #
-    # + countries - Multiple country names, iso2, iso3, or country IDs separated by commas
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getTimeSeriesOfMultipleCountries(string countries, map<string|string[]> headers = {}, *GetTimeSeriesOfMultipleCountriesQueries queries) returns CovidHistoricalCountries|error {
-        string resourcePath = string `/covid-19/historical/${getEncodedUri(countries)}`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 time series data for a specific province in a country
-    #
-    # + country - A country name, iso2, iso3, or country ID code
-    # + province - Province name. All available names can be found in the /v3/covid-19/historical/{query} endpoint
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getTimeSeriesByProvince(string country, string province, map<string|string[]> headers = {}, *GetTimeSeriesByProvinceQueries queries) returns CovidHistoricalProvince|error {
-        string resourcePath = string `/covid-19/historical/${getEncodedUri(country)}/${getEncodedUri(province)}`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 time series data for a set of provinces in a country
-    #
-    # + country - A country name, iso2, iso3, or country ID code
-    # + provinces - Provinces spelled correctly separated by ',' or '|' delimiters, never both in the same query
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getTimeSeriesDataForMultipleProvinces(string country, string provinces, map<string|string[]> headers = {}, *GetTimeSeriesDataForMultipleProvincesQueries queries) returns CovidHistoricalProvinces|error {
-        string resourcePath = string `/covid-19/historical/${getEncodedUri(country)}/${getEncodedUri(provinces)}`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get all possible US States to query the /historical/usacounties/{state} endpoint with
-    #
-    # + headers - Headers to be sent with the request 
-    # + return - Status OK 
-    remote isolated function getTimeSeriesForUSACounties(map<string|string[]> headers = {}) returns CovidHistoricalUSCounties|error {
-        string resourcePath = string `/covid-19/historical/usacounties`;
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 time series data for all counties in a specified US state
-    #
-    # + state - US state name, validated in the array returned from the /v3/covid-19/historical/usacounties endpoint
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getUSACountiesDataByState(string state, map<string|string[]> headers = {}, *GetUSACountiesDataByStateQueries queries) returns CovidHistoricalUSCounty|error {
-        string resourcePath = string `/covid-19/historical/usacounties/${getEncodedUri(state)}`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 time series data for all states, with an entry for each day since the pandemic began
-    #
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getTimeSeriesForAllUSAStatesNYT(map<string|string[]> headers = {}, *GetTimeSeriesForAllUSAStatesNYTQueries queries) returns CovidNYTState|error {
-        string resourcePath = string `/covid-19/nyt/states`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 time series data for a state or set of states, with an entry for each day since the pandemic began
-    #
-    # + state - State name(s), separated by commas (e.g. 'Illinois, California')
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getTimeSeriesByUSAStateNYT(string state, map<string|string[]> headers = {}, *GetTimeSeriesByUSAStateNYTQueries queries) returns CovidNYTState|error {
-        string resourcePath = string `/covid-19/nyt/states/${getEncodedUri(state)}`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 time series data for a county or set of counties, with an entry for each day since the pandemic began
-    #
-    # + county - County name(s), separated by commas (e.g. 'Alameda, Humboldt')
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getTimeSeriesByUSACountyNYT(string county, map<string|string[]> headers = {}, *GetTimeSeriesByUSACountyNYTQueries queries) returns CovidNYTCounty|error {
-        string resourcePath = string `/covid-19/nyt/counties/${getEncodedUri(county)}`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 time series data for the entire USA, with an entry for each day since the pandemic began
-    #
-    # + headers - Headers to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getTimeSeriesForUSANYT(map<string|string[]> headers = {}) returns CovidNYTUSA|error {
-        string resourcePath = string `/covid-19/nyt/usa`;
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get a list of supported countries for Apple mobility data
-    #
-    # + headers - Headers to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getAppleMobilityDataSupportedCountries(map<string|string[]> headers = {}) returns CovidAppleCountries|error {
-        string resourcePath = string `/covid-19/apple/countries`;
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get a list of supported subregions for specific country in the Apple mobility data set
-    #
-    # + country - A valid country name from the /v3/covid-19/apple/countries endpoint
-    # + headers - Headers to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getAppleMobilityDataSupportedSubRegions(string country, map<string|string[]> headers = {}) returns CovidAppleSubregions|error {
-        string resourcePath = string `/covid-19/apple/countries/${getEncodedUri(country)}`;
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 Apple mobility data for subregions of a country
-    #
-    # + country - A valid country name from the /v3/covid-19/apple/countries endpoint
-    # + subregions - Valid subregion(s) from the /v3/covid-19/apple/countries/{country} endpoint, separated by with commas
-    # + headers - Headers to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getStatusBySubRegionUsingAppleMobilotyData(string country, string subregions, map<string|string[]> headers = {}) returns CovidAppleData|error {
-        string resourcePath = string `/covid-19/apple/countries/${getEncodedUri(country)}/${getEncodedUri(subregions)}`;
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get a list of supported countries for government specific data
-    #
-    # + headers - Headers to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getGovenrmentDataSupportedCountries(map<string|string[]> headers = {}) returns CovidGov|error {
-        string resourcePath = string `/covid-19/gov/`;
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 government reported data for a specific country
-    #
-    # + country - A valid country name from the /v3/covid-19/gov endpoint
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getGovernmentReportedDataByCountry(string country, map<string|string[]> headers = {}, *GetGovernmentReportedDataByCountryQueries queries) returns error? {
-        string resourcePath = string `/covid-19/gov/${getEncodedUri(country)}`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get vaccine trial data from RAPS (Regulatory Affairs Professional Society). Specifically published by Jeff Craven at https://www.raps.org/news-and-articles/news-articles/2020/3/covid-19-vaccine-tracker
-    #
-    # + headers - Headers to be sent with the request 
-    # + return - Vaccine trial data 
-    remote isolated function getVaccineTrialData(map<string|string[]> headers = {}) returns Vaccines|error {
-        string resourcePath = string `/covid-19/vaccine`;
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get total global COVID-19 vaccine doses administered. Sourced from https://covid.ourworldindata.org/
-    #
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - Vaccine coverage data 
-    remote isolated function getTotalGlobalVaccineDosesAdministered(map<string|string[]> headers = {}, *GetTotalGlobalVaccineDosesAdministeredQueries queries) returns VaccineCoverage|error {
-        string resourcePath = string `/covid-19/vaccine/coverage`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 vaccine doses administered for all countries that have reported rolling out vaccination. Sourced  from https://covid.ourworldindata.org/
-    #
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getVaccineCoverageOfAllCountries(map<string|string[]> headers = {}, *GetVaccineCoverageOfAllCountriesQueries queries) returns VaccineCountriesCoverage|error {
-        string resourcePath = string `/covid-19/vaccine/coverage/countries`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 vaccine doses administered for a country that has reported vaccination rollout. Sourced from https://covid.ourworldindata.org/
-    #
-    # + country - A valid country name, iso2, iso3
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getVaccineCoverageByCountry(string country, map<string|string[]> headers = {}, *GetVaccineCoverageByCountryQueries queries) returns VaccineCountryCoverage|error {
-        string resourcePath = string `/covid-19/vaccine/coverage/countries/${getEncodedUri(country)}`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 vaccine doses administered for all states that have reported rolling out vaccination. Sourced  from https://covid.ourworldindata.org/
-    #
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getVaccineCoverageOfAllUSAStates(map<string|string[]> headers = {}, *GetVaccineCoverageOfAllUSAStatesQueries queries) returns VaccineStatesCoverage|error {
-        string resourcePath = string `/covid-19/vaccine/coverage/states`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get COVID-19 vaccine doses administered for a state that has reported vaccination rollout. Sourced from https://covid.ourworldindata.org/
-    #
-    # + state - A valid state name
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getVaccineCoverageByUSAState(string state, map<string|string[]> headers = {}, *GetVaccineCoverageByUSAStateQueries queries) returns VaccineStateCoverage|error {
-        string resourcePath = string `/covid-19/vaccine/coverage/states/${getEncodedUri(state)}`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get therapeutics trial data from RAPS (Regulatory Affairs Professional Society). Specifically published by Jeff Craven at https://www.raps.org/news-and-articles/news-articles/2020/3/covid-19-therapeutics-tracker
-    #
-    # + headers - Headers to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getTherapeuticsTrialData(map<string|string[]> headers = {}) returns Therapeutics|error {
-        string resourcePath = string `/covid-19/therapeutics`;
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get Influenza-like-illness data for the 2019 and 2020 outbreaks from the US Center for Disease Control
-    #
-    # + headers - Headers to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getInfluenzaLikeIllnessData(map<string|string[]> headers = {}) returns InfluenzaILINet|error {
-        string resourcePath = string `/influenza/cdc/ILINet`;
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get Influenza report data for the 2019 and 2020 outbreaks from the US Center for Disease Control, reported by US clinical labs
-    #
-    # + headers - Headers to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getInfluenzaReportsByUCLA(map<string|string[]> headers = {}) returns InfluenzaUSCL|error {
-        string resourcePath = string `/influenza/cdc/USCL`;
-        return self.clientEp->get(resourcePath, headers);
-    }
-
-    # Get Influenza report data for the 2019 and 2020 outbreaks from the US Center for Disease Control, reported by US public health labs
-    #
-    # + headers - Headers to be sent with the request 
-    # + return - Status Ok 
-    remote isolated function getInfluenzaReportsByUSPHL(map<string|string[]> headers = {}) returns InfluenzaUSPHL|error {
-        string resourcePath = string `/influenza/cdc/USPHL`;
         return self.clientEp->get(resourcePath, headers);
     }
 }
