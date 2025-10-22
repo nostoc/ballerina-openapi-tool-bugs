@@ -24,7 +24,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Global COVID-19 status 
-    resource isolated function get covid\-19/all(map<string|string[]> headers = {}, *GetGlobalStatusQueries queries) returns CovidAll|error {
+    remote isolated function getGlobalStatus(map<string|string[]> headers = {}, *GetGlobalStatusQueries queries) returns CovidAll|error {
         string resourcePath = string `/covid-19/all`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -35,7 +35,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status OK 
-    resource isolated function get covid\-19/states(map<string|string[]> headers = {}, *GetAllUSAStatesStatusQueries queries) returns CovidStates|error {
+    remote isolated function getAllUSAStatesStatus(map<string|string[]> headers = {}, *GetAllUSAStatesStatusQueries queries) returns CovidStates|error {
         string resourcePath = string `/covid-19/states`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -47,7 +47,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - COVID-19 status of the given US state 
-    resource isolated function get covid\-19/states/[string states](map<string|string[]> headers = {}, *GetUSAStatusByStateQueries queries) returns CovidState|error {
+    remote isolated function getUSAStatusByState(string states, map<string|string[]> headers = {}, *GetUSAStatusByStateQueries queries) returns CovidState|error {
         string resourcePath = string `/covid-19/states/${getEncodedUri(states)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -58,7 +58,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status OK 
-    resource isolated function get covid\-19/continents(map<string|string[]> headers = {}, *GetAllContinentsStatusQueries queries) returns CovidContinents|error {
+    remote isolated function getAllContinentsStatus(map<string|string[]> headers = {}, *GetAllContinentsStatusQueries queries) returns CovidContinents|error {
         string resourcePath = string `/covid-19/continents`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -70,7 +70,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - COVID-19 status of the given continent 
-    resource isolated function get covid\-19/continents/[string continent](map<string|string[]> headers = {}, *GetStatusByContinentQueries queries) returns CovidContinent|error {
+    remote isolated function getStatusByContinent(string continent, map<string|string[]> headers = {}, *GetStatusByContinentQueries queries) returns CovidContinent|error {
         string resourcePath = string `/covid-19/continents/${getEncodedUri(continent)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -81,19 +81,19 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status OK 
-    resource isolated function get covid\-19/countries(map<string|string[]> headers = {}, *GetAllCountriesStatusQueries queries) returns CovidCountries|error {
+    remote isolated function getAllCountriesStatus(map<string|string[]> headers = {}, *GetAllCountriesStatusQueries queries) returns CovidCountries|error {
         string resourcePath = string `/covid-19/countries`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Get COVID-19 totals for a specific set of countries
+    # Get COVID-19 totals for a specific country
     #
-    # + countries - Multiple country names, iso2, iso3, or country IDs separated by commas
+    # + country - A country name, iso2, iso3, or country ID code
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - Status OK 
-    resource isolated function get covid\-19/countries/[string country](map<string|string[]> headers = {}, *GetStatusByCountryQueries queries) returns CovidCountry|error {
+    # + return - COVID-19 status of the given country 
+    remote isolated function getStatusByCountry(string country, map<string|string[]> headers = {}, *GetStatusByCountryQueries queries) returns CovidCountry|error {
         string resourcePath = string `/covid-19/countries/${getEncodedUri(country)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -105,7 +105,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status OK 
-    resource isolated function get covid\-19/countries/[string countries](map<string|string[]> headers = {}, *GetMultipleCountriesStatusQueries queries) returns CovidCountries|error {
+    remote isolated function getMultipleCountriesStatus(string countries, map<string|string[]> headers = {}, *GetMultipleCountriesStatusQueries queries) returns CovidCountries|error {
         string resourcePath = string `/covid-19/countries/${getEncodedUri(countries)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -115,7 +115,7 @@ public isolated client class Client {
     #
     # + headers - Headers to be sent with the request 
     # + return - Status OK 
-    resource isolated function get covid\-19/jhucsse(map<string|string[]> headers = {}) returns CovidJHUCountries|error {
+    remote isolated function getAllCountriesAndProvincesStatus(map<string|string[]> headers = {}) returns CovidJHUCountries|error {
         string resourcePath = string `/covid-19/jhucsse`;
         return self.clientEp->get(resourcePath, headers);
     }
@@ -124,7 +124,7 @@ public isolated client class Client {
     #
     # + headers - Headers to be sent with the request 
     # + return - Status OK 
-    resource isolated function get covid\-19/jhucsse/counties(map<string|string[]> headers = {}) returns CovidJHUCounties|error {
+    remote isolated function getUSCountiesStatus(map<string|string[]> headers = {}) returns CovidJHUCounties|error {
         string resourcePath = string `/covid-19/jhucsse/counties`;
         return self.clientEp->get(resourcePath, headers);
     }
@@ -134,7 +134,7 @@ public isolated client class Client {
     # + county - Name of any county in the USA. All counties are listed in the /v3/covid-19/jhucsse/counties/ endpoint
     # + headers - Headers to be sent with the request 
     # + return - Status OK 
-    resource isolated function get covid\-19/jhucsse/counties/[string county](map<string|string[]> headers = {}) returns CovidJHUCounties|error {
+    remote isolated function getUSAStatusByCounty(string county, map<string|string[]> headers = {}) returns CovidJHUCounties|error {
         string resourcePath = string `/covid-19/jhucsse/counties/${getEncodedUri(county)}`;
         return self.clientEp->get(resourcePath, headers);
     }
@@ -144,7 +144,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status OK 
-    resource isolated function get covid\-19/historical(map<string|string[]> headers = {}, *GetTimeSeriesForAllCountriesAndProvincesQueries queries) returns CovidHistorical|error {
+    remote isolated function getTimeSeriesForAllCountriesAndProvinces(map<string|string[]> headers = {}, *GetTimeSeriesForAllCountriesAndProvincesQueries queries) returns CovidHistorical|error {
         string resourcePath = string `/covid-19/historical`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -155,19 +155,19 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/historical/all(map<string|string[]> headers = {}, *GetGlobalStatusInTimeSeriesQueries queries) returns CovidHistoricalAll|error {
+    remote isolated function getGlobalStatusInTimeSeries(map<string|string[]> headers = {}, *GetGlobalStatusInTimeSeriesQueries queries) returns CovidHistoricalAll|error {
         string resourcePath = string `/covid-19/historical/all`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Get COVID-19 time series data for a specific set of countries
+    # Get COVID-19 time series data for a specific country
     #
-    # + countries - Multiple country names, iso2, iso3, or country IDs separated by commas
+    # + country - A country name, iso2, iso3, or country ID code
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - Status Ok 
-    resource isolated function get covid\-19/historical/[string country](map<string|string[]> headers = {}, *GetTimeSeriesBycountryQueries queries) returns CovidHistoricalCountry|error {
+    # + return - COVID-19 related time series for the given country 
+    remote isolated function getTimeSeriesBycountry(string country, map<string|string[]> headers = {}, *GetTimeSeriesBycountryQueries queries) returns CovidHistoricalCountry|error {
         string resourcePath = string `/covid-19/historical/${getEncodedUri(country)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -179,20 +179,20 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/historical/[string countries](map<string|string[]> headers = {}, *GetTimeSeriesOfMultipleCountriesQueries queries) returns CovidHistoricalCountries|error {
+    remote isolated function getTimeSeriesOfMultipleCountries(string countries, map<string|string[]> headers = {}, *GetTimeSeriesOfMultipleCountriesQueries queries) returns CovidHistoricalCountries|error {
         string resourcePath = string `/covid-19/historical/${getEncodedUri(countries)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Get COVID-19 time series data for a set of provinces in a country
+    # Get COVID-19 time series data for a specific province in a country
     #
     # + country - A country name, iso2, iso3, or country ID code
-    # + provinces - Provinces spelled correctly separated by ',' or '|' delimiters, never both in the same query
+    # + province - Province name. All available names can be found in the /v3/covid-19/historical/{query} endpoint
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/historical/[string country]/[string province](map<string|string[]> headers = {}, *GetTimeSeriesByProvinceQueries queries) returns CovidHistoricalProvince|error {
+    remote isolated function getTimeSeriesByProvince(string country, string province, map<string|string[]> headers = {}, *GetTimeSeriesByProvinceQueries queries) returns CovidHistoricalProvince|error {
         string resourcePath = string `/covid-19/historical/${getEncodedUri(country)}/${getEncodedUri(province)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -205,7 +205,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/historical/[string country]/[string provinces](map<string|string[]> headers = {}, *GetTimeSeriesDataForMultipleProvincesQueries queries) returns CovidHistoricalProvinces|error {
+    remote isolated function getTimeSeriesDataForMultipleProvinces(string country, string provinces, map<string|string[]> headers = {}, *GetTimeSeriesDataForMultipleProvincesQueries queries) returns CovidHistoricalProvinces|error {
         string resourcePath = string `/covid-19/historical/${getEncodedUri(country)}/${getEncodedUri(provinces)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -215,7 +215,7 @@ public isolated client class Client {
     #
     # + headers - Headers to be sent with the request 
     # + return - Status OK 
-    resource isolated function get covid\-19/historical/usacounties(map<string|string[]> headers = {}) returns CovidHistoricalUSCounties|error {
+    remote isolated function getTimeSeriesForUSACounties(map<string|string[]> headers = {}) returns CovidHistoricalUSCounties|error {
         string resourcePath = string `/covid-19/historical/usacounties`;
         return self.clientEp->get(resourcePath, headers);
     }
@@ -226,7 +226,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/historical/usacounties/[string state](map<string|string[]> headers = {}, *GetUSACountiesDataByStateQueries queries) returns CovidHistoricalUSCounty|error {
+    remote isolated function getUSACountiesDataByState(string state, map<string|string[]> headers = {}, *GetUSACountiesDataByStateQueries queries) returns CovidHistoricalUSCounty|error {
         string resourcePath = string `/covid-19/historical/usacounties/${getEncodedUri(state)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -237,7 +237,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/nyt/states(map<string|string[]> headers = {}, *GetTimeSeriesForAllUSAStatesNYTQueries queries) returns CovidNYTState|error {
+    remote isolated function getTimeSeriesForAllUSAStatesNYT(map<string|string[]> headers = {}, *GetTimeSeriesForAllUSAStatesNYTQueries queries) returns CovidNYTState|error {
         string resourcePath = string `/covid-19/nyt/states`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -249,7 +249,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/nyt/states/[string state](map<string|string[]> headers = {}, *GetTimeSeriesByUSAStateNYTQueries queries) returns CovidNYTState|error {
+    remote isolated function getTimeSeriesByUSAStateNYT(string state, map<string|string[]> headers = {}, *GetTimeSeriesByUSAStateNYTQueries queries) returns CovidNYTState|error {
         string resourcePath = string `/covid-19/nyt/states/${getEncodedUri(state)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -261,7 +261,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/nyt/counties/[string county](map<string|string[]> headers = {}, *GetTimeSeriesByUSACountyNYTQueries queries) returns CovidNYTCounty|error {
+    remote isolated function getTimeSeriesByUSACountyNYT(string county, map<string|string[]> headers = {}, *GetTimeSeriesByUSACountyNYTQueries queries) returns CovidNYTCounty|error {
         string resourcePath = string `/covid-19/nyt/counties/${getEncodedUri(county)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -271,7 +271,7 @@ public isolated client class Client {
     #
     # + headers - Headers to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/nyt/usa(map<string|string[]> headers = {}) returns CovidNYTUSA|error {
+    remote isolated function getTimeSeriesForUSANYT(map<string|string[]> headers = {}) returns CovidNYTUSA|error {
         string resourcePath = string `/covid-19/nyt/usa`;
         return self.clientEp->get(resourcePath, headers);
     }
@@ -280,7 +280,7 @@ public isolated client class Client {
     #
     # + headers - Headers to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/apple/countries(map<string|string[]> headers = {}) returns CovidAppleCountries|error {
+    remote isolated function getAppleMobilityDataSupportedCountries(map<string|string[]> headers = {}) returns CovidAppleCountries|error {
         string resourcePath = string `/covid-19/apple/countries`;
         return self.clientEp->get(resourcePath, headers);
     }
@@ -290,7 +290,7 @@ public isolated client class Client {
     # + country - A valid country name from the /v3/covid-19/apple/countries endpoint
     # + headers - Headers to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/apple/countries/[string country](map<string|string[]> headers = {}) returns CovidAppleSubregions|error {
+    remote isolated function getAppleMobilityDataSupportedSubRegions(string country, map<string|string[]> headers = {}) returns CovidAppleSubregions|error {
         string resourcePath = string `/covid-19/apple/countries/${getEncodedUri(country)}`;
         return self.clientEp->get(resourcePath, headers);
     }
@@ -301,12 +301,16 @@ public isolated client class Client {
     # + subregions - Valid subregion(s) from the /v3/covid-19/apple/countries/{country} endpoint, separated by with commas
     # + headers - Headers to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/apple/countries/[string country]/[string subregions](map<string|string[]> headers = {}) returns CovidAppleData|error {
+    remote isolated function getStatusBySubRegionUsingAppleMobilotyData(string country, string subregions, map<string|string[]> headers = {}) returns CovidAppleData|error {
         string resourcePath = string `/covid-19/apple/countries/${getEncodedUri(country)}/${getEncodedUri(subregions)}`;
         return self.clientEp->get(resourcePath, headers);
     }
 
-    resource isolated function get covid\-19/gov(map<string|string[]> headers = {}) returns CovidGov|error {
+    # Get a list of supported countries for government specific data
+    #
+    # + headers - Headers to be sent with the request 
+    # + return - Status Ok 
+    remote isolated function getGovenrmentDataSupportedCountries(map<string|string[]> headers = {}) returns CovidGov|error {
         string resourcePath = string `/covid-19/gov/`;
         return self.clientEp->get(resourcePath, headers);
     }
@@ -317,7 +321,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/gov/[string country](map<string|string[]> headers = {}, *GetGovernmentReportedDataByCountryQueries queries) returns error? {
+    remote isolated function getGovernmentReportedDataByCountry(string country, map<string|string[]> headers = {}, *GetGovernmentReportedDataByCountryQueries queries) returns error? {
         string resourcePath = string `/covid-19/gov/${getEncodedUri(country)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -327,7 +331,7 @@ public isolated client class Client {
     #
     # + headers - Headers to be sent with the request 
     # + return - Vaccine trial data 
-    resource isolated function get covid\-19/vaccine(map<string|string[]> headers = {}) returns Vaccines|error {
+    remote isolated function getVaccineTrialData(map<string|string[]> headers = {}) returns Vaccines|error {
         string resourcePath = string `/covid-19/vaccine`;
         return self.clientEp->get(resourcePath, headers);
     }
@@ -337,7 +341,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Vaccine coverage data 
-    resource isolated function get covid\-19/vaccine/coverage(map<string|string[]> headers = {}, *GetTotalGlobalVaccineDosesAdministeredQueries queries) returns VaccineCoverage|error {
+    remote isolated function getTotalGlobalVaccineDosesAdministered(map<string|string[]> headers = {}, *GetTotalGlobalVaccineDosesAdministeredQueries queries) returns VaccineCoverage|error {
         string resourcePath = string `/covid-19/vaccine/coverage`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -348,7 +352,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/vaccine/coverage/countries(map<string|string[]> headers = {}, *GetVaccineCoverageOfAllCountriesQueries queries) returns VaccineCountriesCoverage|error {
+    remote isolated function getVaccineCoverageOfAllCountries(map<string|string[]> headers = {}, *GetVaccineCoverageOfAllCountriesQueries queries) returns VaccineCountriesCoverage|error {
         string resourcePath = string `/covid-19/vaccine/coverage/countries`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -360,7 +364,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/vaccine/coverage/countries/[string country](map<string|string[]> headers = {}, *GetVaccineCoverageByCountryQueries queries) returns VaccineCountryCoverage|error {
+    remote isolated function getVaccineCoverageByCountry(string country, map<string|string[]> headers = {}, *GetVaccineCoverageByCountryQueries queries) returns VaccineCountryCoverage|error {
         string resourcePath = string `/covid-19/vaccine/coverage/countries/${getEncodedUri(country)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -371,7 +375,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/vaccine/coverage/states(map<string|string[]> headers = {}, *GetVaccineCoverageOfAllUSAStatesQueries queries) returns VaccineStatesCoverage|error {
+    remote isolated function getVaccineCoverageOfAllUSAStates(map<string|string[]> headers = {}, *GetVaccineCoverageOfAllUSAStatesQueries queries) returns VaccineStatesCoverage|error {
         string resourcePath = string `/covid-19/vaccine/coverage/states`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -383,7 +387,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/vaccine/coverage/states/[string state](map<string|string[]> headers = {}, *GetVaccineCoverageByUSAStateQueries queries) returns VaccineStateCoverage|error {
+    remote isolated function getVaccineCoverageByUSAState(string state, map<string|string[]> headers = {}, *GetVaccineCoverageByUSAStateQueries queries) returns VaccineStateCoverage|error {
         string resourcePath = string `/covid-19/vaccine/coverage/states/${getEncodedUri(state)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -393,7 +397,7 @@ public isolated client class Client {
     #
     # + headers - Headers to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get covid\-19/therapeutics(map<string|string[]> headers = {}) returns Therapeutics|error {
+    remote isolated function getTherapeuticsTrialData(map<string|string[]> headers = {}) returns Therapeutics|error {
         string resourcePath = string `/covid-19/therapeutics`;
         return self.clientEp->get(resourcePath, headers);
     }
@@ -402,7 +406,7 @@ public isolated client class Client {
     #
     # + headers - Headers to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get influenza/cdc/ILINet(map<string|string[]> headers = {}) returns InfluenzaILINet|error {
+    remote isolated function getInfluenzaLikeIllnessData(map<string|string[]> headers = {}) returns InfluenzaILINet|error {
         string resourcePath = string `/influenza/cdc/ILINet`;
         return self.clientEp->get(resourcePath, headers);
     }
@@ -411,7 +415,7 @@ public isolated client class Client {
     #
     # + headers - Headers to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get influenza/cdc/USCL(map<string|string[]> headers = {}) returns InfluenzaUSCL|error {
+    remote isolated function getInfluenzaReportsByUCLA(map<string|string[]> headers = {}) returns InfluenzaUSCL|error {
         string resourcePath = string `/influenza/cdc/USCL`;
         return self.clientEp->get(resourcePath, headers);
     }
@@ -420,7 +424,7 @@ public isolated client class Client {
     #
     # + headers - Headers to be sent with the request 
     # + return - Status Ok 
-    resource isolated function get influenza/cdc/USPHL(map<string|string[]> headers = {}) returns InfluenzaUSPHL|error {
+    remote isolated function getInfluenzaReportsByUSPHL(map<string|string[]> headers = {}) returns InfluenzaUSPHL|error {
         string resourcePath = string `/influenza/cdc/USPHL`;
         return self.clientEp->get(resourcePath, headers);
     }
