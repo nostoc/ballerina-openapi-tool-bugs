@@ -1,0 +1,4 @@
+[package]
+org = "hansika"
+name = "covid19"
+version = "0.1.0"

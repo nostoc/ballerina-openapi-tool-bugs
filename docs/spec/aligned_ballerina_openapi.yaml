@@ -1,0 +1,2162 @@
+openapi: 3.0.0
+info:
+  title: Novel COVID-19 API - Disease.sh - An open API for disease-related statistics
+  description: |
+    This is a generated connector from [Novel COVID-19 API version 3.0.0](https://disease.sh/docs/) OpenAPI Specification.
+    Ballerina connector for COVID-19 provides easy access to latest COVID-19 related data across the world. Please refer to [API documentation](https://disease.sh) for more detail.
+  license:
+    name: GNU V3
+    url: https://github.com/disease-sh/API/blob/master/LICENSE
+  version: 3.0.0
+  x-ballerina-display:
+    label: COVID-19
+    iconPath: icon.png
+  x-ballerina-init-description: |
+    The connector initialization doesn't require setting the API credentials.
+externalDocs:
+  description: Find out more about this API
+  url: https://github.com/disease-sh/API
+servers:
+- url: https://disease.sh/v3
+tags:
+- name: "COVID-19: Worldometers"
+  description: "(COVID-19 data sourced from Worldometers, updated every 10 minutes)"
+- name: "COVID-19: JHUCSSE"
+  description: "(COVID-19 data sourced from Johns Hopkins University, updated every\
+    \ 10 minutes)"
+- name: "COVID-19: NYT"
+  description: "(COVID-19 data sourced from the New York Times, updated every 24 hours)"
+- name: "COVID-19: Apple"
+  description: "(COVID-19 related mobility trend data from Apple, updated every 24\
+    \ hours)"
+- name: "COVID-19: Government"
+  description: "(COVID-19 individual government reported data, updated every 24 hours)"
+- name: "COVID-19: Vaccine"
+  description: "(COVID-19 vaccine trial data from raps.org, updated every 24 hours)"
+- name: "COVID-19: Therapeutics"
+  description: "(COVID-19 therapeutic trial data from raps.org, updated every 24 hours)"
+- name: "Influenza: CDC"
+  description: "(Influenza data reported by the United States CDC, updated every 24\
+    \ hours)"
+paths:
+  /covid-19/all:
+    get:
+      tags:
+      - "COVID-19: Worldometers"
+      summary: "Get global COVID-19 totals for today, yesterday and two days ago"
+      operationId: getGlobalStatus
+      parameters:
+      - name: yesterday
+        in: query
+        description: Enter `true`(1) to receive data reported a day ago. Default is
+          `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: twoDaysAgo
+        in: query
+        description: Enter `true`(1) to receive data reported two days ago. Default
+          is `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: allowNull
+        in: query
+        description: "By default, value is 0. Enter `1` to allow nulls to be returned"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      responses:
+        "200":
+          description: Global COVID-19 status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidAll'
+  /covid-19/states:
+    get:
+      tags:
+      - "COVID-19: Worldometers"
+      summary: Get COVID-19 totals for all US States
+      operationId: getAllUSAStatesStatus
+      parameters:
+      - name: sort
+        in: query
+        description: "Provided a key (e.g. cases, todayCases, deaths, active), result\
+          \ will be sorted from greatest to least"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - cases
+          - todayCases
+          - deaths
+          - todayDeaths
+          - active
+      - name: yesterday
+        in: query
+        description: Enter `true`(1) to receive data reported a day ago. Default is
+          `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: allowNull
+        in: query
+        description: "By default, value is 0. Enter `1` to allow nulls to be returned"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      responses:
+        "200":
+          description: Status OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidStates'
+  /covid-19/states/{states}:
+    get:
+      tags:
+      - "COVID-19: Worldometers"
+      summary: Get COVID-19 totals for specific US State(s)
+      operationId: getUSAStatusByState
+      parameters:
+      - name: states
+        in: path
+        description: State name or comma separated names spelled correctly
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: yesterday
+        in: query
+        description: Enter `true`(1) to receive data reported a day ago. Default is
+          `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: allowNull
+        in: query
+        description: "By default, value is 0. Enter `1` to allow nulls to be returned"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      responses:
+        "200":
+          description: COVID-19 status of the given US state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidState'
+  /covid-19/continents:
+    get:
+      tags:
+      - "COVID-19: Worldometers"
+      summary: Get COVID-19 totals for all continents
+      operationId: getAllContinentsStatus
+      parameters:
+      - name: yesterday
+        in: query
+        description: Enter `true`(1) to receive data reported a day ago. Default is
+          `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: twoDaysAgo
+        in: query
+        description: Enter `true`(1) to receive data reported two days ago. Default
+          is `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: sort
+        in: query
+        description: "Provided a key (e.g. cases, todayCases, deaths, recovered, active),\
+          \ results will be sorted from greatest to least"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - cases
+          - todayCases
+          - deaths
+          - todayDeaths
+          - recovered
+          - active
+          - critical
+          - casesPerOneMillion
+          - deathsPerOneMillion
+      - name: allowNull
+        in: query
+        description: "By default, value is 0. Enter `1` to allow nulls to be returned"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      responses:
+        "200":
+          description: Status OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidContinents'
+  /covid-19/continents/{continent}:
+    get:
+      tags:
+      - "COVID-19: Worldometers"
+      summary: Get COVID-19 totals for a specific continent
+      operationId: getStatusByContinent
+      parameters:
+      - name: continent
+        in: path
+        description: Continent name
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: yesterday
+        in: query
+        description: Enter `true`(1) to receive data reported a day ago. Default is
+          `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: twoDaysAgo
+        in: query
+        description: Enter `true`(1) to receive data reported two days ago. Default
+          is `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: strict
+        in: query
+        description: Setting to false gives you the ability to fuzzy search continents
+          (i.e. Oman vs. rOMANia)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "true"
+          enum:
+          - "true"
+          - "false"
+      - name: allowNull
+        in: query
+        description: "By default, value is 0. Enter `1` to allow nulls to be returned"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      responses:
+        "200":
+          description: COVID-19 status of the given continent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidContinent'
+  /covid-19/countries:
+    get:
+      tags:
+      - "COVID-19: Worldometers"
+      summary: Get COVID-19 totals for all countries
+      operationId: getAllCountriesStatus
+      parameters:
+      - name: yesterday
+        in: query
+        description: Enter `true`(1) to receive data reported a day ago. Default is
+          `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: twoDaysAgo
+        in: query
+        description: Enter `true`(1) to receive data reported two days ago. Default
+          is `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: sort
+        in: query
+        description: "Provided a key (e.g. cases, todayCases, deaths, recovered, active),\
+          \ the result will be sorted from greatest to least"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - cases
+          - todayCases
+          - deaths
+          - todayDeaths
+          - recovered
+          - active
+          - critical
+          - casesPerOneMillion
+          - deathsPerOneMillion
+      - name: allowNull
+        in: query
+        description: "By default, value is 0. Enter `1` to allow nulls to be returned"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      responses:
+        "200":
+          description: Status OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidCountries'
+  /covid-19/countries/{country}:
+    get:
+      tags:
+      - "COVID-19: Worldometers"
+      summary: Get COVID-19 totals for a specific country
+      operationId: getStatusByCountry
+      parameters:
+      - name: country
+        in: path
+        description: "A country name, iso2, iso3, or country ID code"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: yesterday
+        in: query
+        description: Enter `true`(1) to receive data reported a day ago. Default is
+          `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: twoDaysAgo
+        in: query
+        description: Enter `true`(1) to receive data reported two days ago. Default
+          is `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: strict
+        in: query
+        description: Setting to false gives you the ability to fuzzy search countries
+          (i.e. Oman vs. rOMANia)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "true"
+          enum:
+          - "true"
+          - "false"
+      - name: allowNull
+        in: query
+        description: "By default, value is 0. Enter `1` to allow nulls to be returned"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      responses:
+        "200":
+          description: COVID-19 status of the given country
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidCountry'
+  /covid-19/countries/{countries}:
+    get:
+      tags:
+      - "COVID-19: Worldometers"
+      summary: Get COVID-19 totals for a specific set of countries
+      operationId: getMultipleCountriesStatus
+      parameters:
+      - name: countries
+        in: path
+        description: "Multiple country names, iso2, iso3, or country IDs separated\
+          \ by commas"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: yesterday
+        in: query
+        description: Enter `true`(1) to receive data reported a day ago. Default is
+          `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: twoDaysAgo
+        in: query
+        description: Enter `true`(1) to receive data reported two days ago. Default
+          is `false`(0)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      - name: allowNull
+        in: query
+        description: "By default, value is 0. Enter `1` to allow nulls to be returned"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      responses:
+        "200":
+          description: Status OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidCountries'
+  /covid-19/jhucsse:
+    get:
+      tags:
+      - "COVID-19: JHUCSSE"
+      summary: Get COVID-19 totals for all countries and their provinces
+      operationId: getAllCountriesAndProvincesStatus
+      responses:
+        "200":
+          description: Status OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidJHUCountries'
+  /covid-19/jhucsse/counties:
+    get:
+      tags:
+      - "COVID-19: JHUCSSE"
+      summary: Get COVID-19 totals for all US counties
+      operationId: getUSCountiesStatus
+      responses:
+        "200":
+          description: Status OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidJHUCounties'
+  /covid-19/jhucsse/counties/{county}:
+    get:
+      tags:
+      - "COVID-19: JHUCSSE"
+      summary: Get COVID-19 totals for a specific county
+      operationId: getUSAStatusByCounty
+      parameters:
+      - name: county
+        in: path
+        description: Name of any county in the USA. All counties are listed in the
+          /v3/covid-19/jhucsse/counties/ endpoint
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Status OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidJHUCounties'
+  /covid-19/historical:
+    get:
+      tags:
+      - "COVID-19: JHUCSSE"
+      summary: Get COVID-19 time series data for all countries and their provinces
+      operationId: getTimeSeriesForAllCountriesAndProvinces
+      parameters:
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      responses:
+        "200":
+          description: Status OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidHistorical'
+  /covid-19/historical/all:
+    get:
+      tags:
+      - "COVID-19: JHUCSSE"
+      summary: Get global accumulated COVID-19 time series data
+      operationId: getGlobalStatusInTimeSeries
+      parameters:
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidHistoricalAll'
+  /covid-19/historical/{country}:
+    get:
+      tags:
+      - "COVID-19: JHUCSSE"
+      summary: Get COVID-19 time series data for a specific country
+      operationId: getTimeSeriesBycountry
+      parameters:
+      - name: country
+        in: path
+        description: "A country name, iso2, iso3, or country ID code"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      responses:
+        "200":
+          description: COVID-19 related time series for the given country
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidHistoricalCountry'
+  /covid-19/historical/{countries}:
+    get:
+      tags:
+      - "COVID-19: JHUCSSE"
+      summary: Get COVID-19 time series data for a specific set of countries
+      operationId: getTimeSeriesOfMultipleCountries
+      parameters:
+      - name: countries
+        in: path
+        description: "Multiple country names, iso2, iso3, or country IDs separated\
+          \ by commas"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidHistoricalCountries'
+  /covid-19/historical/{country}/{province}:
+    get:
+      tags:
+      - "COVID-19: JHUCSSE"
+      summary: Get COVID-19 time series data for a specific province in a country
+      operationId: getTimeSeriesByProvince
+      parameters:
+      - name: country
+        in: path
+        description: "A country name, iso2, iso3, or country ID code"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: province
+        in: path
+        description: "Province name. All available names can be found in the /v3/covid-19/historical/{query}\
+          \ endpoint"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidHistoricalProvince'
+  /covid-19/historical/{country}/{provinces}:
+    get:
+      tags:
+      - "COVID-19: JHUCSSE"
+      summary: Get COVID-19 time series data for a set of provinces in a country
+      operationId: getTimeSeriesDataForMultipleProvinces
+      parameters:
+      - name: country
+        in: path
+        description: "A country name, iso2, iso3, or country ID code"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: provinces
+        in: path
+        description: "Provinces spelled correctly separated by ',' or '|' delimiters,\
+          \ never both in the same query"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidHistoricalProvinces'
+  /covid-19/historical/usacounties:
+    get:
+      tags:
+      - "COVID-19: JHUCSSE"
+      summary: "Get all possible US States to query the /historical/usacounties/{state}\
+        \ endpoint with"
+      description: Returns a list of US States and provinces
+      operationId: getTimeSeriesForUSACounties
+      responses:
+        "200":
+          description: Status OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidHistoricalUSCounties'
+  /covid-19/historical/usacounties/{state}:
+    get:
+      tags:
+      - "COVID-19: JHUCSSE"
+      summary: Get COVID-19 time series data for all counties in a specified US state
+      operationId: getUSACountiesDataByState
+      parameters:
+      - name: state
+        in: path
+        description: "US state name, validated in the array returned from the /v3/covid-19/historical/usacounties\
+          \ endpoint"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidHistoricalUSCounty'
+  /covid-19/nyt/states:
+    get:
+      tags:
+      - "COVID-19: NYT"
+      summary: "Get COVID-19 time series data for all states, with an entry for each\
+        \ day since the pandemic began"
+      operationId: getTimeSeriesForAllUSAStatesNYT
+      parameters:
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidNYTState'
+  /covid-19/nyt/states/{state}:
+    get:
+      tags:
+      - "COVID-19: NYT"
+      summary: "Get COVID-19 time series data for a state or set of states, with an\
+        \ entry for each day since the pandemic began"
+      operationId: getTimeSeriesByUSAStateNYT
+      parameters:
+      - name: state
+        in: path
+        description: "State name(s), separated by commas (e.g. 'Illinois, California')"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidNYTState'
+  /covid-19/nyt/counties/{county}:
+    get:
+      tags:
+      - "COVID-19: NYT"
+      summary: "Get COVID-19 time series data for a county or set of counties, with\
+        \ an entry for each day since the pandemic began"
+      operationId: getTimeSeriesByUSACountyNYT
+      parameters:
+      - name: county
+        in: path
+        description: "County name(s), separated by commas (e.g. 'Alameda, Humboldt')"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidNYTCounty'
+  /covid-19/nyt/usa:
+    get:
+      tags:
+      - "COVID-19: NYT"
+      summary: "Get COVID-19 time series data for the entire USA, with an entry for\
+        \ each day since the pandemic began"
+      operationId: getTimeSeriesForUSANYT
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidNYTUSA'
+  /covid-19/apple/countries:
+    get:
+      tags:
+      - "COVID-19: Apple"
+      summary: Get a list of supported countries for Apple mobility data
+      description: Returns a list of supported country names
+      operationId: getAppleMobilityDataSupportedCountries
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidAppleCountries'
+  /covid-19/apple/countries/{country}:
+    get:
+      tags:
+      - "COVID-19: Apple"
+      summary: Get a list of supported subregions for specific country in the Apple
+        mobility data set
+      description: Returns a list of supported subregions in a country where data
+        is available
+      operationId: getAppleMobilityDataSupportedSubRegions
+      parameters:
+      - name: country
+        in: path
+        description: A valid country name from the /v3/covid-19/apple/countries endpoint
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidAppleSubregions'
+  /covid-19/apple/countries/{country}/{subregions}:
+    get:
+      tags:
+      - "COVID-19: Apple"
+      summary: Get COVID-19 Apple mobility data for subregions of a country
+      description: "Returns a list of mobility data entries for subregion(s) every\
+        \ day since January 13th. Each entry has driving, transit, and walking data\
+        \ with an associated number of percentage change since January 13th"
+      operationId: getStatusBySubRegionUsingAppleMobilotyData
+      parameters:
+      - name: country
+        in: path
+        description: A valid country name from the /v3/covid-19/apple/countries endpoint
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: subregions
+        in: path
+        description: "Valid subregion(s) from the /v3/covid-19/apple/countries/{country}\
+          \ endpoint, separated by with commas"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidAppleData'
+  /covid-19/gov/:
+    get:
+      tags:
+      - "COVID-19: Government"
+      summary: Get a list of supported countries for government specific data
+      description: Returns a list of supported country names
+      operationId: getGovenrmentDataSupportedCountries
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovidGov'
+  /covid-19/gov/{country}:
+    get:
+      tags:
+      - "COVID-19: Government"
+      summary: Get COVID-19 government reported data for a specific country
+      operationId: getGovernmentReportedDataByCountry
+      parameters:
+      - name: country
+        in: path
+        description: A valid country name from the /v3/covid-19/gov endpoint
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: allowNull
+        in: query
+        description: "By default, value is 0. Enter `1` to allow nulls to be returned"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          enum:
+          - "true"
+          - "false"
+          - "1"
+          - "0"
+      responses:
+        "200":
+          description: Status Ok
+  /covid-19/vaccine:
+    get:
+      tags:
+      - "COVID-19: Vaccine"
+      summary: Get vaccine trial data from RAPS (Regulatory Affairs Professional Society).
+        Specifically published by Jeff Craven at https://www.raps.org/news-and-articles/news-articles/2020/3/covid-19-vaccine-tracker
+      operationId: getVaccineTrialData
+      responses:
+        "200":
+          description: Vaccine trial data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vaccines'
+  /covid-19/vaccine/coverage:
+    get:
+      tags:
+      - "COVID-19: Vaccine"
+      summary: Get total global COVID-19 vaccine doses administered. Sourced from
+        https://covid.ourworldindata.org/
+      operationId: getTotalGlobalVaccineDosesAdministered
+      parameters:
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      - name: fullData
+        in: query
+        description: Flag indicating whether to return data type as SimpleVaccineTimeline
+          (false) or FullVaccineTimeline (true)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "false"
+      responses:
+        "200":
+          description: Vaccine coverage data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VaccineCoverage'
+              examples:
+                simpleTimeline:
+                  $ref: '#/components/examples/SimpleVaccineTimeline'
+                fullTimeline:
+                  $ref: '#/components/examples/FullVaccineTimeline'
+  /covid-19/vaccine/coverage/countries:
+    get:
+      tags:
+      - "COVID-19: Vaccine"
+      summary: Get COVID-19 vaccine doses administered for all countries that have
+        reported rolling out vaccination. Sourced  from https://covid.ourworldindata.org/
+      operationId: getVaccineCoverageOfAllCountries
+      parameters:
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      - name: fullData
+        in: query
+        description: Flag indicating whether to return data type as SimpleVaccineTimeline
+          (false) or FullVaccineTimeline (true)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "false"
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VaccineCountriesCoverage'
+              examples:
+                simpleTimeline:
+                  $ref: '#/components/examples/countriesSimpleVaccineTimeline'
+                fullTimeline:
+                  $ref: '#/components/examples/countriesFullVaccineTimeline'
+  /covid-19/vaccine/coverage/countries/{country}:
+    get:
+      tags:
+      - "COVID-19: Vaccine"
+      summary: Get COVID-19 vaccine doses administered for a country that has reported
+        vaccination rollout. Sourced from https://covid.ourworldindata.org/
+      operationId: getVaccineCoverageByCountry
+      parameters:
+      - name: country
+        in: path
+        description: "A valid country name, iso2, iso3"
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      - name: fullData
+        in: query
+        description: Flag indicating whether to return data type as SimpleVaccineTimeline
+          (false) or FullVaccineTimeline (true)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "false"
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VaccineCountryCoverage'
+              examples:
+                simpleTimeline:
+                  $ref: '#/components/examples/countrySimpleVaccineTimeline'
+                fullTimeline:
+                  $ref: '#/components/examples/countryFullVaccineTimeline'
+  /covid-19/vaccine/coverage/states:
+    get:
+      tags:
+      - "COVID-19: Vaccine"
+      summary: Get COVID-19 vaccine doses administered for all states that have reported
+        rolling out vaccination. Sourced  from https://covid.ourworldindata.org/
+      operationId: getVaccineCoverageOfAllUSAStates
+      parameters:
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      - name: fullData
+        in: query
+        description: Flag indicating whether to return data type as SimpleVaccineTimeline
+          (false) or FullVaccineTimeline (true)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "false"
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VaccineStatesCoverage'
+              examples:
+                simpleTimeline:
+                  $ref: '#/components/examples/statesSimpleVaccineTimeline'
+                fullTimeline:
+                  $ref: '#/components/examples/statesFullVaccineTimeline'
+  /covid-19/vaccine/coverage/states/{state}:
+    get:
+      tags:
+      - "COVID-19: Vaccine"
+      summary: Get COVID-19 vaccine doses administered for a state that has reported
+        vaccination rollout. Sourced from https://covid.ourworldindata.org/
+      operationId: getVaccineCoverageByUSAState
+      parameters:
+      - name: state
+        in: path
+        description: A valid state name
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: lastdays
+        in: query
+        description: "Number of days to return. Use 'all' for the full data set (e.g.\
+          \ 15, all, 24)"
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "30"
+      - name: fullData
+        in: query
+        description: Flag indicating whether to return data type as SimpleVaccineTimeline
+          (false) or FullVaccineTimeline (true)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+          default: "false"
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VaccineStateCoverage'
+              examples:
+                simpleTimeline:
+                  $ref: '#/components/examples/stateSimpleVaccineTimeline'
+                fullTimeline:
+                  $ref: '#/components/examples/stateFullVaccineTimeline'
+  /covid-19/therapeutics:
+    get:
+      tags:
+      - "COVID-19: Therapeutics"
+      summary: Get therapeutics trial data from RAPS (Regulatory Affairs Professional
+        Society). Specifically published by Jeff Craven at https://www.raps.org/news-and-articles/news-articles/2020/3/covid-19-therapeutics-tracker
+      operationId: getTherapeuticsTrialData
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Therapeutics'
+  /influenza/cdc/ILINet:
+    get:
+      tags:
+      - "Influenza: CDC"
+      summary: Get Influenza-like-illness data for the 2019 and 2020 outbreaks from
+        the US Center for Disease Control
+      operationId: getInfluenzaLikeIllnessData
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfluenzaILINet'
+  /influenza/cdc/USCL:
+    get:
+      tags:
+      - "Influenza: CDC"
+      summary: "Get Influenza report data for the 2019 and 2020 outbreaks from the\
+        \ US Center for Disease Control, reported by US clinical labs"
+      operationId: getInfluenzaReportsByUCLA
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfluenzaUSCL'
+  /influenza/cdc/USPHL:
+    get:
+      tags:
+      - "Influenza: CDC"
+      summary: "Get Influenza report data for the 2019 and 2020 outbreaks from the\
+        \ US Center for Disease Control, reported by US public health labs"
+      operationId: getInfluenzaReportsByUSPHL
+      responses:
+        "200":
+          description: Status Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InfluenzaUSPHL'
+components:
+  schemas:
+    CovidState:
+      required:
+      - active
+      - cases
+      - deaths
+      - population
+      - state
+      - todayCases
+      - todayDeaths
+      - updated
+      properties:
+        state:
+          type: string
+        updated:
+          type: number
+        cases:
+          type: number
+        todayCases:
+          type: number
+        deaths:
+          type: number
+        todayDeaths:
+          type: number
+        active:
+          type: number
+        casesPerOneMillion:
+          type: number
+        deathsPerOneMillion:
+          type: number
+        tests:
+          type: number
+        testsPerOneMillion:
+          type: number
+        population:
+          type: number
+    CovidCountry:
+      required:
+      - active
+      - cases
+      - continent
+      - country
+      - deaths
+      - population
+      - recovered
+      - todayCases
+      - todayDeaths
+      properties:
+        updated:
+          type: number
+        country:
+          type: string
+        countryInfo:
+          $ref: '#/components/schemas/CovidCountryCountryInfo'
+        cases:
+          type: number
+        todayCases:
+          type: number
+        deaths:
+          type: number
+        todayDeaths:
+          type: number
+        recovered:
+          type: number
+        todayRecovered:
+          type: number
+        active:
+          type: number
+        critical:
+          type: number
+        casesPerOneMillion:
+          type: number
+        deathsPerOneMillion:
+          type: number
+        tests:
+          type: number
+        testsPerOneMillion:
+          type: number
+        population:
+          type: number
+        continent:
+          type: string
+        oneCasePerPeople:
+          type: number
+        oneDeathPerPeople:
+          type: number
+        oneTestPerPeople:
+          type: number
+        activePerOneMillion:
+          type: number
+        recoveredPerOneMillion:
+          type: number
+        criticalPerOneMillion:
+          type: number
+    InfluenzaILINet:
+      properties:
+        updated:
+          type: number
+        source:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ILINet'
+    Vaccines:
+      properties:
+        source:
+          type: string
+        totalCandidates:
+          type: string
+        phases:
+          type: array
+          items:
+            $ref: '#/components/schemas/Phases'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vaccine'
+    CovidHistoricalInner:
+      required:
+      - country
+      - timeline
+      type: object
+      properties:
+        country:
+          type: string
+        province:
+          type: string
+          nullable: true
+        timeline:
+          $ref: '#/components/schemas/Timeline'
+    TimelineDeaths:
+      type: object
+      properties:
+        date:
+          type: number
+    CovidContinent:
+      required:
+      - active
+      - cases
+      - critical
+      - deaths
+      - todayCases
+      - todayDeaths
+      - updated
+      properties:
+        updated:
+          type: number
+        cases:
+          type: number
+        todayCases:
+          type: number
+        deaths:
+          type: number
+        todayDeaths:
+          type: number
+        recovered:
+          type: number
+        todayRecovered:
+          type: number
+        active:
+          type: number
+        critical:
+          type: number
+        casesPerOneMillion:
+          type: number
+        deathsPerOneMillion:
+          type: number
+        tests:
+          type: number
+        testsPerOneMillion:
+          type: number
+        population:
+          type: number
+        continent:
+          type: string
+        activePerOneMillion:
+          type: number
+        recoveredPerOneMillion:
+          type: number
+        criticalPerOneMillion:
+          type: number
+        continentInfo:
+          $ref: '#/components/schemas/CovidContinentContinentInfo'
+        countries:
+          type: array
+          items:
+            type: string
+    CovidAppleSubregions:
+      properties:
+        country:
+          type: string
+        subregions:
+          type: array
+          items:
+            type: string
+    CovidNYTCountyInner:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        cases:
+          type: number
+        county:
+          type: string
+        fips:
+          type: string
+        state:
+          type: string
+        deaths:
+          type: number
+    CovidNYTUSAInner:
+      properties:
+        date:
+          type: string
+          format: date
+        cases:
+          type: number
+        deaths:
+          type: number
+    Phases:
+      properties:
+        phase:
+          type: string
+        candidates:
+          type: string
+    CovidHistoricalUSCounty:
+      type: array
+      items:
+        $ref: '#/components/schemas/CovidHistoricalUSCountyInner'
+    CovidHistoricalUSCountyInner:
+      type: object
+      properties:
+        province:
+          type: string
+        county:
+          type: string
+        timeline:
+          $ref: '#/components/schemas/Timeline'
+    CovidJHUCountryStats:
+      required:
+      - confirmed
+      - deaths
+      type: object
+      properties:
+        recovered:
+          type: number
+          nullable: true
+        confirmed:
+          type: number
+        deaths:
+          type: number
+    USCL:
+      properties:
+        week:
+          type: string
+        totalA:
+          type: number
+        totalB:
+          type: number
+        percentPositiveA:
+          type: number
+        percentPositiveB:
+          type: number
+        totalTests:
+          type: number
+        percentPositive:
+          type: number
+    USPHL:
+      properties:
+        week:
+          type: string
+        A(H3N2v):
+          type: number
+        A(H1N1):
+          type: number
+        A(H3):
+          type: number
+        A(unable to sub-type)+:
+          type: number
+        A(Subtyping not performed):
+          type: number
+        B:
+          type: number
+        BVIC:
+          type: number
+        totalTests:
+          type: number
+    CovidContinentContinentInfo:
+      type: object
+      properties:
+        lat:
+          type: number
+        long:
+          type: number
+    InfluenzaUSCL:
+      properties:
+        updated:
+          type: number
+        source:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/USCL'
+    CovidHistoricalProvinces:
+      type: array
+      items:
+        $ref: '#/components/schemas/CovidHistoricalProvince'
+    CovidNYTUSA:
+      type: array
+      items:
+        $ref: '#/components/schemas/CovidNYTUSAInner'
+    InfluenzaUSPHL:
+      properties:
+        updated:
+          type: number
+        source:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/USPHL'
+    FullVaccineTimelineInner:
+      type: object
+      properties:
+        date:
+          type: string
+        total:
+          type: number
+        daily:
+          type: number
+        dailyPerMillion:
+          type: number
+        totalPerHundred:
+          type: number
+    CovidCountryCountryInfo:
+      type: object
+      properties:
+        flag:
+          type: string
+        _id:
+          uniqueItems: true
+          type: number
+          nullable: true
+          x-ballerina-name: id
+        iso2:
+          uniqueItems: true
+          type: string
+          nullable: true
+        lat:
+          type: number
+        long:
+          type: number
+        iso3:
+          uniqueItems: true
+          type: string
+          nullable: true
+    CovidHistoricalAll:
+      required:
+      - cases
+      - deaths
+      - recovered
+      properties:
+        cases:
+          $ref: '#/components/schemas/TimelineDeaths'
+        deaths:
+          $ref: '#/components/schemas/TimelineDeaths'
+        recovered:
+          $ref: '#/components/schemas/TimelineDeaths'
+    CovidContinents:
+      type: array
+      items:
+        $ref: '#/components/schemas/CovidContinent'
+    CovidHistoricalCountry:
+      properties:
+        country:
+          type: string
+        province:
+          type: array
+          items:
+            type: string
+        timeline:
+          $ref: '#/components/schemas/Timeline'
+    Therapeutics:
+      properties:
+        source:
+          type: string
+        totalCandidates:
+          type: string
+        phases:
+          type: array
+          items:
+            $ref: '#/components/schemas/Phases'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Therapeutic'
+    CovidJHUCountry:
+      required:
+      - country
+      - stats
+      properties:
+        country:
+          type: string
+        county:
+          type: string
+          nullable: true
+        updatedAt:
+          type: string
+        stats:
+          $ref: '#/components/schemas/CovidJHUCountryStats'
+        coordinates:
+          $ref: '#/components/schemas/CovidJHUCountryCoordinates'
+        province:
+          type: string
+          nullable: true
+    CovidNYTCounty:
+      type: array
+      items:
+        $ref: '#/components/schemas/CovidNYTCountyInner'
+    CovidJHUCountries:
+      type: array
+      items:
+        $ref: '#/components/schemas/CovidJHUCountry'
+    VaccineStatesCoverage:
+      type: array
+      items:
+        $ref: '#/components/schemas/VaccineStateCoverage'
+    VaccineCoverage:
+      oneOf:
+      - $ref: '#/components/schemas/SimpleVaccineTimeline'
+      - $ref: '#/components/schemas/FullVaccineTimeline'
+    CovidHistoricalUSCounties:
+      type: array
+      items:
+        type: string
+    CovidAppleDataData:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        geo_type:
+          type: string
+          x-ballerina-name: geoType
+        driving:
+          type: number
+        transit:
+          type: number
+        walking:
+          type: number
+        subregion_and_city:
+          type: string
+          x-ballerina-name: subregionAndCity
+        sub-region:
+          type: string
+          x-ballerina-name: subRegion
+    CovidAll:
+      required:
+      - active
+      - cases
+      - critical
+      - deaths
+      - population
+      - recovered
+      - todayCases
+      - todayDeaths
+      - todayRecovered
+      - updated
+      properties:
+        updated:
+          type: number
+        cases:
+          type: number
+        todayCases:
+          type: number
+        deaths:
+          type: number
+        todayDeaths:
+          type: number
+        recovered:
+          type: number
+        todayRecovered:
+          type: number
+        active:
+          type: number
+        critical:
+          type: number
+        casesPerOneMillion:
+          type: number
+        deathsPerOneMillion:
+          type: number
+        tests:
+          type: number
+        testsPerOneMillion:
+          type: number
+        population:
+          type: number
+        oneCasePerPeople:
+          type: number
+        oneDeathPerPeople:
+          type: number
+        oneTestPerPeople:
+          type: number
+        activePerOneMillion:
+          type: number
+        recoveredPerOneMillion:
+          type: number
+        criticalPerOneMillion:
+          type: number
+        affectedCountries:
+          type: number
+    CovidAppleData:
+      properties:
+        country:
+          type: string
+        subregion:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CovidAppleDataData'
+    CovidAppleCountries:
+      type: array
+      items:
+        type: string
+    VaccineCountryCoverage:
+      type: object
+      properties:
+        country:
+          type: string
+        timeline:
+          oneOf:
+          - $ref: '#/components/schemas/SimpleVaccineTimeline'
+          - $ref: '#/components/schemas/FullVaccineTimeline'
+    ILINet:
+      properties:
+        week:
+          type: string
+        age 5-24:
+          type: number
+        age 25-49:
+          type: number
+        age 50-64:
+          type: number
+        age 64+:
+          type: number
+        totalILI:
+          type: number
+        totalPatients:
+          type: number
+        percentUnweightedILI:
+          type: number
+        percentWeightedILI:
+          type: number
+    CovidJHUCountryCoordinates:
+      type: object
+      properties:
+        latitude:
+          type: string
+        longitude:
+          type: string
+    VaccineCountriesCoverage:
+      type: array
+      items:
+        $ref: '#/components/schemas/VaccineCountryCoverage'
+    CovidStates:
+      type: array
+      items:
+        $ref: '#/components/schemas/CovidState'
+    CovidGov:
+      type: array
+      items:
+        type: string
+    CovidNYTStateInner:
+      required:
+      - cases
+      - date
+      - deaths
+      - fips
+      - state
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        cases:
+          type: number
+        fips:
+          type: string
+        state:
+          type: string
+        deaths:
+          type: number
+    CovidCountries:
+      type: array
+      items:
+        $ref: '#/components/schemas/CovidCountry'
+    FullVaccineTimeline:
+      type: array
+      items:
+        $ref: '#/components/schemas/FullVaccineTimelineInner'
+    Therapeutic:
+      properties:
+        medicationClass:
+          type: string
+        tradeName:
+          type: array
+          items:
+            type: string
+        details:
+          type: string
+        developerResearcher:
+          type: array
+          items:
+            type: string
+        sponsors:
+          type: array
+          items:
+            type: string
+        trialPhase:
+          type: string
+        lastUpdate:
+          type: string
+    Vaccine:
+      properties:
+        candidate:
+          type: string
+        mechanism:
+          type: string
+        sponsors:
+          type: array
+          items:
+            type: string
+        details:
+          type: string
+        trialPhase:
+          type: string
+        institutions:
+          type: array
+          items:
+            type: string
+    CovidHistorical:
+      type: array
+      items:
+        $ref: '#/components/schemas/CovidHistoricalInner'
+    CovidJHUCounty:
+      required:
+      - country
+      - county
+      - province
+      properties:
+        country:
+          type: string
+        province:
+          type: string
+        county:
+          type: string
+        updatedAt:
+          type: string
+        stats:
+          $ref: '#/components/schemas/CovidJHUCountryStats'
+        coordinates:
+          $ref: '#/components/schemas/CovidJHUCountryCoordinates'
+    CovidJHUCounties:
+      type: array
+      items:
+        $ref: '#/components/schemas/CovidJHUCounty'
+    CovidHistoricalProvince:
+      properties:
+        country:
+          type: string
+        province:
+          type: string
+        timeline:
+          $ref: '#/components/schemas/Timeline'
+    Timeline:
+      required:
+      - cases
+      - deaths
+      - recovered
+      type: object
+      properties:
+        recovered:
+          $ref: '#/components/schemas/TimelineDeaths'
+        cases:
+          $ref: '#/components/schemas/Cases'
+        deaths:
+          $ref: '#/components/schemas/TimelineDeaths'
+    CovidHistoricalCountries:
+      type: array
+      items:
+        $ref: '#/components/schemas/CovidHistoricalCountry'
+    VaccineStateCoverage:
+      type: object
+      properties:
+        timeline:
+          oneOf:
+          - $ref: '#/components/schemas/SimpleVaccineTimeline'
+          - $ref: '#/components/schemas/FullVaccineTimeline'
+        state:
+          type: string
+    CovidNYTState:
+      type: array
+      items:
+        $ref: '#/components/schemas/CovidNYTStateInner'
+    SimpleVaccineTimeline:
+      type: object
+      properties:
+        date:
+          type: number
+    Cases:
+      type: object
+      properties:
+        date:
+          type: number
+  examples:
+    countriesSimpleVaccineTimeline:
+      summary: Simple Vaccine Timeline
+      value:
+      - country: USA
+        timeline:
+          "4/25/2021": 1000
+    countriesFullVaccineTimeline:
+      summary: Full Vaccine Timeline
+      value:
+      - country: USA
+        timeline:
+        - total: 1000
+          daily: 1000
+          totalPerHundred: 1000
+          dailyPerMillion: 1000
+          date: 4/25/2021
+    countrySimpleVaccineTimeline:
+      summary: Simple Vaccine Timeline
+      value:
+        country: USA
+        timeline:
+          "4/25/2021": 1000
+    countryFullVaccineTimeline:
+      summary: Full Vaccine Timeline
+      value:
+        country: USA
+        timeline:
+        - total: 1000
+          daily: 1000
+          totalPerHundred: 1000
+          dailyPerMillion: 1000
+          date: 4/25/2021
+    statesSimpleVaccineTimeline:
+      summary: Simple Vaccine Timeline
+      value:
+      - state: California
+        timeline:
+          "4/25/2021": 1000
+    statesFullVaccineTimeline:
+      summary: Full Vaccine Timeline
+      value:
+      - state: California
+        timeline:
+        - total: 1000
+          daily: 1000
+          totalPerHundred: 1000
+          dailyPerMillion: 1000
+          date: 4/25/2021
+    stateSimpleVaccineTimeline:
+      summary: Simple Vaccine Timeline
+      value:
+        state: California
+        timeline:
+          "4/25/2021": 1000
+    stateFullVaccineTimeline:
+      summary: Full Vaccine Timeline
+      value:
+        state: California
+        timeline:
+        - total: 1000
+          daily: 1000
+          totalPerHundred: 1000
+          dailyPerMillion: 1000
+          date: 4/25/2021
+    SimpleVaccineTimeline:
+      summary: Simple Vaccine Timeline
+      value:
+        "4/25/2021": 1000
+    FullVaccineTimeline:
+      summary: Full Vaccine Timeline
+      value:
+      - total: 1000
+        daily: 1000
+        totalPerHundred: 1000
+        dailyPerMillion: 1000
+        date: 4/25/2021
